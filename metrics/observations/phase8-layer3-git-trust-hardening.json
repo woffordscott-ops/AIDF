@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "record_type": "change_observation",
+  "change_id": "phase8-layer3-git-trust-hardening",
+  "project": "ProjectGenome/ai-development-framework",
+  "final_class": "T3",
+  "source": {
+    "merge_request": "!20",
+    "base_sha": "2a778e3c8ccd4e795a9bdff921718ded913413bd",
+    "head_sha": "3e2369f1bf71fc45a39b110299872759cd771ff3",
+    "merge_commit_sha": "c6fa9bdd06680cefcb36e2cd0280d9ee9f4dcd1f",
+    "protected_pipeline_ids": ["1106", "1107"]
+  },
+  "collector": "Claude Sonnet 5 (Anthropic), orchestrating session",
+  "collected_at_utc": "2026-09-29T00:00:00Z",
+  "population": {
+    "included": "The single governed change instantiating instantiation/check_context_pack.py's three Git trust-boundary defenses (git replace, .git/info/grafts, commit-graph cache) plus its three added _bound_git_root negative-path regressions, from first local Verifier review through protected-main merge. Class held T3 throughout; never escalated or de-escalated.",
+    "excluded": "The separate aidf-ci-policy MRs (!54, !55, !56) that carried the exact-head policy rebinds are a distinct population — reported separately below in notes, per the population contract, because they are policy-configuration changes, not this code change. The subsequent Phase 7 qualification-activation pipeline run is also excluded — it observes a different governed change."
+  },
+  "metrics": {
+    "human_minutes_per_merged_change": {
+      "status": "unavailable",
+      "reason": "Scott Wofford's active read/decide/authorize time per message was never instrumented in real time. This is itself the clearest evidence for the instrumentation gap this record exists to start closing: AI-side review timing is precisely UTC-timestamped in every substitute-reviewer report this episode produced, but human-side attention time has no equivalent capture mechanism yet."
+    },
+    "rework_rate": {
+      "status": "measured",
+      "numerator": 1,
+      "denominator": 1,
+      "value": "1 of 1 merged changes in this population required more than one substantive revision (3 total: the missing-negative-test finding, the grafts-forgery fix, the commit-graph-forgery fix) = 100%",
+      "basis": "n=1 — report as insufficient sample per definitions.md 'small samples' rule, not as a stable rate. The individual revision count (3) is the more meaningful number at this population size."
+    },
+    "change_failure_rate": {
+      "status": "not_applicable",
+      "reason": "Observation window has not elapsed — merged 2026-09-28, same day as this record."
+    },
+    "escaped_defect_rate_by_class": {
+      "status": "not_applicable",
+      "reason": "Observation window has not elapsed. Directionally notable: zero defects escaped to merge — all three findings (F1, F-SEC1, F-SEC2) were caught and closed pre-merge — but that is a pre-merge review outcome, not a post-merge escape rate, and the two must not be conflated."
+    },
+    "cost_per_merged_change": {
+      "status": "unavailable",
+      "reason": "Model/tool API spend and CI compute attributable to this change were not captured this episode. No provider usage export or CI-duration mapping was performed. Recorded here as unavailable, not zero, per the reconstruction rule."
+    },
+    "classification_calibration": {
+      "status": "not_applicable",
+      "reason": "No escalation or de-escalation event occurred — the change was classified T3 at intake ('T3, conservatively, because the completed change may later require protected enforcement') and remained T3 through merge. Escalation precision and under-classification rate are both undefined for a change with zero escalation events and no audit sampling."
+    },
+    "review_finding_precision": {
+      "status": "measured",
+      "value": {
+        "correctness": {
+          "numerator": 1,
+          "denominator": 1,
+          "model_identifier": "claude-sonnet-5",
+          "description": "1 confirmed blocking finding / 1 blocking finding raised = 100% (F1, rank 2, Medium, missing negative-test coverage)"
+        },
+        "security": {
+          "numerator": 2,
+          "denominator": 2,
+          "model_identifier": "claude-sonnet-5",
+          "description": "2 confirmed blocking findings / 2 blocking findings raised = 100% (F-SEC1 grafts forgery, F-SEC2 commit-graph forgery, both rank 1, Critical)"
+        }
+      },
+      "basis": "Counted directly from review disposition records, reported separately by review layer per definitions.md's explicit rule rather than blended: correctness layer found and confirmed F1; security layer found and confirmed F-SEC1 and F-SEC2. Zero FALSE_POSITIVE, zero DUPLICATE, zero UNRESOLVED dispositions in either layer. All three findings were independently reproduced with working exploits and closed with counterfactual regression tests before disposition. model_identifier is recorded as 'claude-sonnet-5' per this record's own collector field and review-methodology notes (both reviewer layers operated as accepted_substitute reviewers under that model identity); no per-round reviewer_instance_id was captured at the time and is not fabricated here. The separate aidf-ci-policy MR !54/!55 review population (4 reviews, 0 findings raised, all PASS) is excluded from this ratio per the population contract and is reported in notes."
+    },
+    "review_disagreement_and_revision_outcomes": {
+      "status": "measured",
+      "value": {
+        "disagreements": 0,
+        "findings_causing_substantive_revision": 3,
+        "false_positives": 0,
+        "re_review_rounds": 4,
+        "escalations": 1,
+        "review_round_wall_clock_utc": {
+          "mr20_correctness": "2026-09-28T13:29:54Z to 2026-09-28T13:32:14Z (2m20s)",
+          "mr20_security": "2026-09-28T13:33:50Z to 2026-09-28T13:35:24Z (1m34s)"
+        },
+        "time_to_disposition": "unknown — not separately captured"
+      },
+      "basis": "Escalation count (1) is the explicit Change Owner authorization required on 2026-09-22 when the second Security Review finding (F-SEC2) pushed the episode past the two-cycle review-loop budget set in spec/PHASE8-CLOSEOUT-DECISION.md — an unresolved-scope escalation to the Change Owner, per definitions.md's review-outcome dimensions, not a task-classification escalation. Re-review round count (4) covers the F1, F-SEC1, and F-SEC2 fix-confirmation passes. `review_round_wall_clock_utc` (renamed 2026-09-29, was mislabeled `time_to_disposition_measured_rounds_utc`) records only each review round's own start/completion wall-clock span — the two rounds that self-reported UTC timestamps (the final, protected-pipeline-adjacent MR !20 reviews). It is not finding-creation-to-disposition duration: neither a finding's creation timestamp nor its separate disposition timestamp was captured at the time, so true time-to-disposition is recorded as unknown, not estimated from round duration. Earlier local rounds did not consistently record start timestamps and are not backfilled."
+    }
+  },
+  "notes": "Case-study-zero: the first populated record in metrics/observations/. Companion policy-configuration population (excluded above): aidf-ci-policy MR !54 (rebind MR!19→!20) and MR !55 (scope-attestation repair, 12→14 attested files) each received one correctness and one security substitute review; all four returned 0 actionable findings, 0 disagreements, 0 re-review rounds. That population is mechanical-transformation review, not adversarial code security review, and reports separately by design, not by omission. Every reviewer in the code-change population operated clean-room — briefed on the diff, the Task Contract, and governing docs, deliberately withheld the evidence document's own narrative and prior rounds' rationale — and every finding was independently reproduced with a real counterfactual (guard removed → exploit succeeds; guard restored → exploit blocked) before disposition, not asserted from review opinion."
+}

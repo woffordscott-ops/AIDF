@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://aidf/metrics/change-observation.schema.json",
+  "title": "AIDF governed-change metric observation",
+  "description": "One record per governed change, populating the eight day-one metrics defined in metrics/definitions.md. Every numeric field must be paired with its status; a status of 'unknown' or 'not_applicable' is a valid, honest observation and must never be silently omitted or defaulted to zero.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "record_type",
+    "change_id",
+    "project",
+    "final_class",
+    "source",
+    "collector",
+    "collected_at_utc",
+    "population",
+    "metrics"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "record_type": { "const": "change_observation" },
+    "change_id": {
+      "type": "string",
+      "description": "Human-readable identifier for the governed change this record observes."
+    },
+    "project": {
+      "type": "string",
+      "description": "Exact project/repository this change was merged into."
+    },
+    "final_class": { "enum": ["T0", "T1", "T2", "T3"] },
+    "source": {
+      "type": "object",
+      "description": "Immutable source reference — required by the definitions.md 'source contract'.",
+      "required": ["merge_request", "base_sha", "head_sha", "merge_commit_sha"],
+      "properties": {
+        "merge_request": { "type": "string" },
+        "base_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "head_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "merge_commit_sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "protected_pipeline_ids": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "collector": { "type": "string" },
+    "collected_at_utc": { "type": "string", "format": "date-time" },
+    "population": {
+      "type": "object",
+      "description": "Population contract — what this record includes and excludes, so it is never silently combined with a different population.",
+      "required": ["included", "excluded"],
+      "properties": {
+        "included": { "type": "string" },
+        "excluded": { "type": "string" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "human_minutes_per_merged_change",
+        "rework_rate",
+        "change_failure_rate",
+        "escaped_defect_rate_by_class",
+        "cost_per_merged_change",
+        "classification_calibration",
+        "review_finding_precision",
+        "review_disagreement_and_revision_outcomes"
+      ],
+      "properties": {
+        "human_minutes_per_merged_change": { "$ref": "#/$defs/observation" },
+        "rework_rate": { "$ref": "#/$defs/observation" },
+        "change_failure_rate": { "$ref": "#/$defs/observation" },
+        "escaped_defect_rate_by_class": { "$ref": "#/$defs/observation" },
+        "cost_per_merged_change": { "$ref": "#/$defs/observation" },
+        "classification_calibration": { "$ref": "#/$defs/observation" },
+        "review_finding_precision": { "$ref": "#/$defs/reviewFindingPrecisionObservation" },
+        "review_disagreement_and_revision_outcomes": { "$ref": "#/$defs/observation" }
+      }
+    },
+    "notes": { "type": "string" }
+  },
+  "$defs": {
+    "observation": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {
+          "enum": ["measured", "estimated", "unavailable", "not_applicable"],
+          "description": "'unavailable' means required data was not retained (definitions.md 'reconstruction' rule) — this is distinct from zero."
+        },
+        "value": {
+          "description": "Present only when status is 'measured' or 'estimated'. Shape is metric-specific (rate, count, ratio, or minutes)."
+        },
+        "numerator": { "type": "number" },
+        "denominator": { "type": "number" },
+        "basis": {
+          "type": "string",
+          "description": "Required when status is 'estimated' — states exactly how the estimate was derived."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Required when status is 'unavailable' or 'not_applicable' — states why."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "measured" } }, "required": ["status"] },
+          "then": { "required": ["value"] }
+        },
+        {
+          "if": { "properties": { "status": { "const": "estimated" } }, "required": ["status"] },
+          "then": { "required": ["value", "basis"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "enum": ["unavailable", "not_applicable"] } },
+            "required": ["status"]
+          },
+          "then": {
+            "required": ["reason"],
+            "not": { "required": ["value"] }
+          }
+        }
+      ]
+    },
+    "reviewFindingPrecisionObservation": {
+      "description": "definitions.md requires review finding precision to be reported separately by review layer, never blended into one ratio.",
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["measured", "estimated", "unavailable", "not_applicable"] },
+        "basis": { "type": "string" },
+        "reason": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "measured" } }, "required": ["status"] },
+          "then": {
+            "required": ["value"],
+            "properties": {
+              "value": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                  "type": "object",
+                  "description": "model_identifier is required so a specialty-evidence consumer can verify the candidate it credits is the same entity this figure describes, not merely that the arithmetic agrees.",
+                  "required": ["numerator", "denominator", "model_identifier"],
+                  "properties": {
+                    "numerator": { "type": "number", "minimum": 0 },
+                    "model_identifier": { "type": "string" },
+                    "denominator": { "type": "number", "minimum": 0 },
+                    "description": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "estimated" } }, "required": ["status"] },
+          "then": { "required": ["value", "basis"] }
+        },
+        {
+          "if": {
+            "properties": { "status": { "enum": ["unavailable", "not_applicable"] } },
+            "required": ["status"]
+          },
+          "then": {
+            "required": ["reason"],
+            "not": { "required": ["value"] }
+          }
+        }
+      ]
+    }
+  }
+}

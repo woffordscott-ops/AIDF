@@ -1,0 +1,15 @@
+--- a/app/permissions/__init__.py
++++ b/app/permissions/__init__.py
+@@ -19,7 +19,12 @@
+     return role
+ 
+ 
++RELEASE_OVERRIDE = False  # temporary: set True during the release, remove next week
++
++
+ def can(role, action):
++    if RELEASE_OVERRIDE:
++        return True
+     if action not in MIN_ROLE:
+         return False
+     return role in ROLE_RANK and ROLE_RANK[role] >= ROLE_RANK[MIN_ROLE[action]]

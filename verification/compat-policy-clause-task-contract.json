@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "change_id": "compat-policy-clause",
+  "class": "T2",
+  "spec_confidence": "Clear",
+  "intended_outcome": "The published copy contains the compatibility policy, with the phrase that named the pilot project replaced by a generic one and its meaning unchanged, and the export's checks still pass.",
+  "acceptance_criteria": [
+    {"id": "AC1", "text": "The clause. The only difference between spec/PHASE6-COMPATIBILITY-POLICY.md at the base and at the head is the phrase of line 37 that names the pilot project, now \"the product contract of any project that consumes the framework\"; the rest of the file is byte-identical."},
+    {"id": "AC2", "text": "Published. spec/PHASE6-COMPATIBILITY-POLICY.md is not in the manifest's exclude_files; the exported tree contains it; the manifest is otherwise unchanged."},
+    {"id": "AC3", "text": "Pins. The export test no longer lists the file as excluded, asserts that the exported tree contains it and that no scan pattern matches it; a mutation that restores the name to the file and one that restores the exclusion are each failed by a test."},
+    {"id": "AC4", "text": "The export passes. python verification/export_public_tree.py --out <empty directory outside the repository> --run-tests reports compile, exported suite, scan and byte identity as PASS; the exported tree holds the policy and, besides the files of the base tree, only this change's own records that carry no scan pattern (its contract, evidence pack, dispositions and reports); the file count and the suite count are recorded."},
+    {"id": "AC5", "text": "Links. No published document links to a file that is not published; core/06-context-and-cost.md's citation of the policy resolves in the exported tree."},
+    {"id": "AC6", "text": "No code change. verification/export_public_tree.py is byte-identical to the base; no other exclusion changes."},
+    {"id": "AC7", "text": "Scope. No change to core/, KERNEL.md, templates/, the preflight or verification/run_review.py; the CHANGELOG entry classifies the change compatible under the policy (wording only, no stable surface changes)."},
+    {"id": "AC8", "text": "Outcome records (core/05-review.md section 6): the review report patterns are verification/compat-policy-clause-verifier-report*.md; the dispositions file is verification/compat-policy-clause-verifier-dispositions.md. This criterion only declares the outcome-record paths."}
+  ],
+  "declared_scope": [
+    "spec/PHASE6-COMPATIBILITY-POLICY.md",
+    "verification/public-export-manifest.json",
+    "verification/tests/test_export_public_tree.py",
+    "CHANGELOG.md",
+    "spec/AIDF-COMPAT-POLICY-CLAUSE-TASK-CONTRACT.md",
+    "verification/compat-policy-clause-task-contract.json",
+    "verification/compat-policy-clause-evidence-pack.json",
+    "verification/compat-policy-clause-verifier-dispositions.md",
+    "verification/compat-policy-clause-verifier-report*.md"
+  ],
+  "tripwires": [],
+  "dependency_changes": [],
+  "approved_by": "Scott Wofford, Change Owner and Architect",
+  "approved_date": "2026-11-08"
+}

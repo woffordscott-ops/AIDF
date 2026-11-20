@@ -1,0 +1,89 @@
+--- a/app/auth/__init__.py
++++ b/app/auth/__init__.py
+@@ -82,8 +82,20 @@
+     return body + "." + _sign(key, body)
+ 
+ 
+-def verify_token(key, token, now):
+-    """Return the Principal for a valid, unexpired token; raise AuthError otherwise."""
++def _signer(key, previous_key, body, signature):
++    """Which key signed this token: "current", "previous" or None."""
++    if hmac.compare_digest(_sign(key, body), signature):
++        return "current"
++    if previous_key is not None and hmac.compare_digest(_sign(previous_key, body), signature):
++        return "previous"
++    return None
++
++
++def verify_token(key, token, now, previous_key=None):
++    """Return the Principal for a valid, unexpired token; raise AuthError otherwise.
++
++    While a signing key is being rotated, `previous_key` is the key that was in use until the rotation.
++    """
+     if not isinstance(token, str) or token.count(".") != 1:
+         raise AuthError("malformed token")
+     body, signature = token.split(".")
+@@ -91,7 +103,10 @@
+         raise AuthError("malformed token")
+     if not _finite_number(now):
+         raise AuthError("bad clock")
+-    if not signature.isascii() or not hmac.compare_digest(_sign(key, body), signature):
++    if not signature.isascii():
++        raise AuthError("bad signature")
++    signer = _signer(key, previous_key, body, signature)
++    if signer is None:
+         raise AuthError("bad signature")
+     try:
+         payload = json.loads(_unb64(body), parse_constant=_reject_constant)
+@@ -104,14 +119,14 @@
+     return Principal(user_id=user_id, tenant_id=tenant_id, role=role)
+ 
+ 
+-def authenticate(db, key, token, now):
++def authenticate(db, key, token, now, previous_key=None):
+     """Verify a token, then derive authority from the user's LIVE membership.
+ 
+     The token proves who the caller is and which tenant they chose at login. Their role
+     (and whether they still belong at all) is read from the database on every request, so
+     a removed or demoted member cannot keep acting on a token issued earlier (INV-2).
+     """
+-    claim = verify_token(key, token, now)
++    claim = verify_token(key, token, now, previous_key)
+     row = db.execute(
+         "SELECT role FROM memberships WHERE tenant_id = ? AND user_id = ? AND active = 1",
+         (claim.tenant_id, claim.user_id),
+--- a/tests/test_auth.py
++++ b/tests/test_auth.py
+@@ -44,6 +44,32 @@
+         token = body + "." + auth._sign(KEY, body)
+         with self.assertRaises(AuthError):
+             auth.verify_token(KEY, token, NOW)
++
++
++PREVIOUS_KEY = b"rotated-out-fixture-key-not-a-secret"
++
++
++class KeyRotationTests(World):
++    def test_a_token_from_the_previous_key_is_accepted_only_while_one_is_configured(self):
++        token = auth.issue_token(PREVIOUS_KEY, self.users["a_owner"], self.ta, "owner", NOW)
++        self.assertEqual(auth.verify_token(KEY, token, NOW + 10, PREVIOUS_KEY).user_id, self.users["a_owner"])
++        with self.assertRaises(AuthError):
++            auth.verify_token(KEY, token, NOW + 10)
++
++    def test_a_token_from_an_unknown_key_is_rejected(self):
++        token = auth.issue_token(b"some-other-fixture-key", 7, 3, "owner", NOW)
++        with self.assertRaises(AuthError):
++            auth.verify_token(KEY, token, NOW + 10, PREVIOUS_KEY)
++
++    def test_a_current_key_token_still_expires_during_a_rotation(self):
++        token = auth.issue_token(KEY, 7, 3, "owner", NOW, ttl=60)
++        auth.verify_token(KEY, token, NOW + 59, PREVIOUS_KEY)
++        with self.assertRaises(AuthError):
++            auth.verify_token(KEY, token, NOW + 60, PREVIOUS_KEY)
++
++    def test_authenticate_reads_live_authority_for_a_previous_key_token(self):
++        token = auth.issue_token(PREVIOUS_KEY, self.users["a_viewer"], self.ta, "owner", NOW)
++        self.assertEqual(auth.authenticate(self.db, KEY, token, NOW + 10, PREVIOUS_KEY).role, "viewer")
+ 
+ 
+ class PasswordTests(unittest.TestCase):

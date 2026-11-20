@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "change_id": "review-preflight",
+  "class": "T2",
+  "falsification": "If verification/preflight.py passes a head whose attested file differs from the protected policy repository, passes when the policy repository could not be reached and --offline was not given, excuses with --allow-protected anything but a hash mismatch, lets an untracked file make a step pass, or runs a command from the policy template that does not start with python3, ruff or mypy, or if verification/aidf_check.py differs from the merge base with main, the change is wrong.",
+  "jurisdiction": "This evidence covers falsifiable correctness only and makes no claim about requirement fitness, design quality or acceptable risk.",
+  "e0": {
+    "status": "passed",
+    "artifact": "python -m py_compile verification/preflight.py verification/tests/test_preflight.py exits 0."
+  },
+  "e1": {
+    "status": "passed",
+    "artifact": "python -m ruff check verification exits 0; python -m mypy --strict verification/preflight.py prints Success: no issues found; python verification/preflight.py ran the policy's own static-analysis and checker-fixtures commands in a clean checkout of the head under test (see e5 for the live run)."
+  },
+  "e2": {
+    "status": "passed",
+    "artifact": "python -m unittest discover -s verification/tests: Ran 522 tests, OK (skipped=3).",
+    "coverage_boundary": "The three skipped tests are two symlink tests and one POSIX FIFO test. The template fields have presence tests (TemplatePresenceTests), which show a field is written and not that it is right. The tests run against temporary repositories, not against the real policy repository."
+  },
+  "e3": {
+    "status": "satisfied",
+    "mechanism": "reversion test",
+    "artifact": "templates/task-contract.md and CHANGELOG.md restored to their base revisions and templates/review-brief.md removed in a copy of the head, and verification/tests/test_preflight.py run there: 3 of its 28 tests fail; with verification/preflight.py also absent the test module cannot be loaded. Three behaviours were also removed one at a time in a copy of verification/preflight.py (the lookup failure as a failing step, the limit of --allow-protected to hash mismatches, the clean checkout), and in each case the matching test failed.",
+    "counterfactual": "Without the template fields and the brief the presence tests fail; without the tool the module has nothing to test. The replay in e5 shows the tool fails at the two heads of review-efficiency-core that failed in review and CI, and passes at its final head."
+  },
+  "e4": [
+    {
+      "criterion": "AC1",
+      "check": "python verification/preflight.py on this change's own head runs the policy commands, the governance commands, contract, evidence, scope, trip-wires, public-tree scan and pack facts in a clean checkout of the head and prints status ALL OK; an uncommitted tracked change is refused (test_an_uncommitted_tracked_change_is_refused); an untracked file does not reach the steps (test_the_steps_run_on_a_clean_checkout_of_the_head); a base that is not an ancestor of the head fails (test_a_base_that_is_not_an_ancestor_of_the_head_fails). A contract or evidence path is made repository-relative and a path outside the repository is refused (test_an_absolute_path_does_not_escape_the_clean_checkout, test_a_path_outside_the_repository_is_refused).",
+      "status": "passed",
+      "artifact": "verification/preflight.py; verification/tests/test_preflight.py MainTests"
+    },
+    {
+      "criterion": "AC2",
+      "check": "python -m unittest verification.tests.test_preflight.ExtractionTests: command extraction from a policy template text returns only single-line python3, ruff and mypy commands without shell syntax and lists the rest as skipped; a missing job is an error; the governance block is read; test_offline_is_explicit_and_says_the_list_may_not_match.",
+      "status": "passed",
+      "artifact": "verification/preflight.py job_commands, governance_commands; verification/tests/test_preflight.py ExtractionTests, MainTests"
+    },
+    {
+      "criterion": "AC3",
+      "check": "python -m unittest verification.tests.test_preflight.AttestationTests, ExtractionTests and MainTests: a changed attested file is named and fails; the same change passes that step with --allow-protected and the reference is printed; --allow-protected does not excuse an unknown record variable; a record entry of another shape fails closed; a matching file passes with line endings normalised; an unreachable policy repository is a failing step named policy lookup; --policy-ref accepts main or a full SHA only. A policy job that no longer checks exactly records plus selected records fails closed (test_a_changed_record_loop_fails_closed).",
+      "status": "passed",
+      "artifact": "verification/preflight.py check_attestation, main; verification/tests/test_preflight.py AttestationTests, MainTests"
+    },
+    {
+      "criterion": "AC4",
+      "check": "python -m unittest verification.tests.test_preflight.TemplatePresenceTests: templates/task-contract.md contains the Protected files touched field and the New rule or checker checklist.",
+      "status": "passed",
+      "artifact": "templates/task-contract.md; verification/tests/test_preflight.py test_task_contract_has_the_protected_files_field_and_the_new_rule_checklist"
+    },
+    {
+      "criterion": "AC5",
+      "check": "python -m unittest verification.tests.test_preflight.TemplatePresenceTests: templates/review-brief.md contains the standing lines.",
+      "status": "passed",
+      "artifact": "templates/review-brief.md; verification/tests/test_preflight.py test_review_brief_has_the_standing_lines"
+    },
+    {
+      "criterion": "AC6",
+      "check": "The reversion run and the single-behaviour removals named in e3; ruff and mypy --strict on verification/preflight.py; the CHANGELOG entry under Added.",
+      "status": "passed",
+      "artifact": "CHANGELOG.md Unreleased Added entry; verification/tests/test_preflight.py"
+    },
+    {
+      "criterion": "AC7",
+      "check": "git diff --quiet of the merge base with main against HEAD for verification/aidf_check.py, verification/phase2-task-contract.json, .gitlab-ci.yml, KERNEL.md, core/02-authority.md and core/05-review.md exits 0; python verification/aidf_check.py scope and tripwires over the branch diff pass.",
+      "status": "passed",
+      "artifact": "verification/review-preflight-task-contract.json criterion AC7"
+    },
+    {
+      "criterion": "AC8",
+      "check": "The report pattern and the dispositions file named in AC8 are declared in the contract; the merger runs verification/review_head_binding_evidence.py compare() from the last reviewed head to the final head and records the result in the dispositions.",
+      "status": "passed",
+      "artifact": "verification/review-preflight-task-contract.json criterion AC8; verification/review-preflight-verifier-dispositions.md"
+    }
+  ],
+  "e5": "Tested: a changed protected file, the same change with --allow-protected, an unchanged file, CRLF against LF in the attested bytes, an unknown record variable, a missing file at the head, an uncommitted tracked change, an unreachable policy repository, --offline, a missing job, a missing records block, a missing governance block, a line with a pipe, a shell variable, a curl command, a pip install and a multi-line block in a policy job. Live: the lookup was run against the real policy repository (aidf-ci-policy, the head of its main on the day of the run; the SHA is recorded in the dispositions) on the head of review-efficiency-core's merge: ALL OK there. Replay of the heads of review-efficiency-core with this tool and a base of 792f231: f34d7ee fails on attested record hash mismatch for verification/aidf_check.py and on mypy --strict verification/aidf_check.py (the error reviewers found in round 1); b3ed2b4 fails on the attested record (the pipeline failure); 4537057 passes with status ALL OK.",
+  "e6": "Invariants touched: none of the stable surface. core/05-review.md, verification/aidf_check.py, verification/phase2-task-contract.json and .gitlab-ci.yml are not edited. Contract diff: none for the checker. One tool and two template files are added and two templates gain fields.",
+  "residual_risk": "The preflight reads the head of the policy repository's main unless given a SHA, while the commit set in the project's CI/CD setting is the authority; the setting is not readable without a credential, which the tool does not take, so the two can differ. It needs SSH access to the policy repository and exits non-zero without it unless --offline is given. It reads the records checked for every head and does not check the records that apply to named historical candidate commits. It runs the local Python, ruff and mypy versions, which may differ from the pipeline image. It runs commands read from the policy repository, limited to lines that start with python3, ruff or mypy and contain no shell syntax; a python3 command can still run any Python code the policy repository names, which the protected policy repository is trusted not to do. It does not run the other branches of the job aidf-governance or the security jobs, uses the local origin/main (fetch first) where the pipeline fetches main, and is not a security control. The brief template and the Task Contract fields have presence tests only. The amendment that replaced a mirror list with a lookup follows the Change Owner's stated preference; the contract's Status records it. The attestation lookup reads the records tuple and requires the policy job to check exactly records plus selected records; a policy that attests files by another mechanism fails the lookup closed and needs this tool updated."
+}

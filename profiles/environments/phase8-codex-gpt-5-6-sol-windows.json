@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "environment_id": "phase8-codex-gpt-5-6-sol-windows",
+  "observed_at": "2026-09-01T21:49:30Z",
+  "operating_system": "Windows",
+  "execution_boundary": "Codex desktop hosted candidate through the approved bounded codex-cli transport",
+  "execution_transport": "hosted",
+  "candidate_network_access": "disabled",
+  "credential_access": "none",
+  "python_runtime": "bundled Python 3.12.13",
+  "claude_code_exact_version": "unknown",
+  "codex_tool_exact_version": "0.151.0-alpha.7.2",
+  "cursor_tool_exact_version": "unknown",
+  "model_backend_identifiers": "gpt-5.6-sol",
+  "candidate_identity": {
+    "vendor": "OpenAI",
+    "tool": "codex-cli",
+    "tool_version": "0.151.0-alpha.7.2",
+    "model_identifier": "gpt-5.6-sol"
+  },
+  "limitations": [
+    "Hosted transport is approved only for frozen qualification prompts and minimum necessary repository excerpts.",
+    "The candidate has no web, dependency-download, external-service, or arbitrary network authority within a case.",
+    "Credentials, private keys, certificates, production data, unrestricted repository upload, new dependencies, telemetry changes, and reuse outside this qualification are prohibited.",
+    "The model identifier is exact for this run; no permanent backend identity or behavior is inferred beyond the recorded identifier."
+  ]
+}

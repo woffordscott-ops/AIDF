@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "change_id": "restore-excluded-tests",
+  "class": "T2",
+  "spec_confidence": "Clear",
+  "intended_outcome": "The public copy's suite runs the tests of the qualification, gate-checker and reference-suite checks that do not need a left-out file, and skips the 50 that do, while the private suite runs all of them.",
+  "acceptance_criteria": [
+    {"id": "AC1", "text": "Guards. The 50 tests that read a left-out file (all of test_qualification_check.py, the seven named tests of test_aidf_check.py, the named test of test_reference_suite_v2.py) carry a guard on the existence of the files they read, with a reason that names the file; no other test is guarded."},
+    {"id": "AC2", "text": "Private suite unchanged. In the private tree no guarded test is skipped: the suite's skip count is the same as at the base and its test count is the base's plus the tests this change adds."},
+    {"id": "AC3", "text": "Pin. A test in the private tree asserts that every guarded file exists and is tracked; a mutation that renames or removes a guarded file is failed by a test."},
+    {"id": "AC4", "text": "Published. The manifest no longer excludes the three test files and is otherwise changed only in the notes sentence; the export test's pins and notes pin follow, and a test asserts the three files are published."},
+    {"id": "AC5", "text": "The export passes. python verification/export_public_tree.py --out <empty directory outside the repository> --run-tests reports compile, exported suite, scan and byte identity as PASS; the exported suite's test and skip counts are recorded in the dispositions and are about 120 tests higher than the base's 388."},
+    {"id": "AC6", "text": "No other change. verification/export_public_tree.py is byte-identical to the base; no core, template, preflight or run_review.py change; no left-out file is published."},
+    {"id": "AC7", "text": "Outcome records (core/05-review.md section 6): the review report patterns are verification/restore-excluded-tests-verifier-report*.md; the dispositions file is verification/restore-excluded-tests-verifier-dispositions.md. This criterion only declares the outcome-record paths."}
+  ],
+  "declared_scope": [
+    "verification/tests/test_qualification_check.py",
+    "verification/tests/test_aidf_check.py",
+    "verification/tests/test_reference_suite_v2.py",
+    "verification/public-export-manifest.json",
+    "verification/tests/test_export_public_tree.py",
+    "CHANGELOG.md",
+    "spec/AIDF-RESTORE-EXCLUDED-TESTS-TASK-CONTRACT.md",
+    "verification/restore-excluded-tests-task-contract.json",
+    "verification/restore-excluded-tests-evidence-pack.json",
+    "verification/restore-excluded-tests-verifier-dispositions.md",
+    "verification/restore-excluded-tests-verifier-report*.md"
+  ],
+  "tripwires": [],
+  "dependency_changes": [],
+  "approved_by": "Scott Wofford, Change Owner and Architect",
+  "approved_date": "2026-11-09"
+}

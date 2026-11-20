@@ -1,0 +1,119 @@
+--- a/app/db.py
++++ b/app/db.py
+@@ -24,6 +24,13 @@
+     title TEXT NOT NULL,
+     created_by INTEGER NOT NULL REFERENCES users(id),
+     assignee_id INTEGER REFERENCES users(id)
++);
++CREATE TABLE IF NOT EXISTS comments (
++    id INTEGER PRIMARY KEY,
++    tenant_id INTEGER NOT NULL REFERENCES tenants(id),
++    ticket_id INTEGER NOT NULL REFERENCES tickets(id),
++    author_id INTEGER NOT NULL REFERENCES users(id),
++    text TEXT NOT NULL
+ );
+ CREATE TABLE IF NOT EXISTS ledger (
+     id INTEGER PRIMARY KEY,
+--- a/app/permissions/__init__.py
++++ b/app/permissions/__init__.py
+@@ -7,6 +7,7 @@
+     "ticket.read": "viewer",
+     "ticket.create": "member",
+     "ticket.assign": "member",
++    "ticket.comment": "member",
+     "member.manage": "admin",
+     "billing.read": "admin",
+     "billing.write": "admin",
+--- a/app/tickets/__init__.py
++++ b/app/tickets/__init__.py
+@@ -63,3 +63,49 @@
+         )
+         ticket = get_ticket(db, principal, ticket_id)  # read back under the lock, before COMMIT
+     return ticket
++
++
++MAX_COMMENT_CHARS = 2000
++
++
++def _comment(r):
++    return {"id": r["id"], "ticket_id": r["ticket_id"], "author_id": r["author_id"], "text": r["text"]}
++
++
++def add_comment(db, principal, ticket_id, text, idempotency_key):
++    permissions.require(principal, "ticket.comment")
++    ticket_id = validate.db_id(ticket_id, "ticket_id")
++    if not isinstance(text, str) or not text.strip():
++        raise Invalid("text is required")
++    validate.text(text, "text")
++    text = text.strip()
++    if len(text) > MAX_COMMENT_CHARS:
++        raise Invalid(f"text must not exceed {MAX_COMMENT_CHARS} characters")
++    key = idempotency.check_key(idempotency_key)
++    request_hash = idempotency.fingerprint("comment.add", ticket_id=ticket_id, text=text)
++    with transaction(db):
++        tenants.require_live(db, principal, "ticket.comment")
++        saved = idempotency.replay(db, principal, key, request_hash)
++        if saved is not None:
++            return saved  # this exact request was already applied: answer it again, write nothing
++        if db.execute("SELECT 1 FROM tickets WHERE id = ?", (ticket_id,)).fetchone() is None:
++            raise NotFound("ticket not found")
++        cur = db.execute(
++            "INSERT INTO comments (tenant_id, ticket_id, author_id, text) VALUES (?, ?, ?, ?)",
++            (principal.tenant_id, ticket_id, principal.user_id, text),
++        )
++        comment = {"id": cur.lastrowid, "ticket_id": ticket_id, "author_id": principal.user_id, "text": text}
++        idempotency.remember(db, principal, key, request_hash, comment)
++    return comment
++
++
++def list_comments(db, principal, ticket_id):
++    permissions.require(principal, "ticket.read")
++    ticket_id = validate.db_id(ticket_id, "ticket_id")
++    if db.execute("SELECT 1 FROM tickets WHERE id = ?", (ticket_id,)).fetchone() is None:
++        raise NotFound("ticket not found")
++    rows = db.execute(
++        "SELECT id, ticket_id, author_id, text FROM comments WHERE ticket_id = ? ORDER BY id",
++        (ticket_id,),
++    ).fetchall()
++    return [_comment(r) for r in rows]
+--- a/app/web.py
++++ b/app/web.py
+@@ -40,6 +40,16 @@
+ @route("POST", r"/tickets/([0-9]{1,18})/assign")
+ def _assign(ctx, p, body, tid):
+     return 200, tickets.assign_ticket(ctx.db, p, int(tid), body.get("assignee_id"))
++
++
++@route("POST", r"/tickets/([0-9]{1,18})/comments")
++def _add_comment(ctx, p, body, tid):
++    return 201, tickets.add_comment(ctx.db, p, int(tid), body.get("text"), body.get("idempotency_key"))
++
++
++@route("GET", r"/tickets/([0-9]{1,18})/comments")
++def _list_comments(ctx, p, body, tid):
++    return 200, {"comments": tickets.list_comments(ctx.db, p, int(tid))}
+ 
+ 
+ @route("POST", r"/members")
+--- a/tests/source_scan.py
++++ b/tests/source_scan.py
+@@ -50,7 +50,7 @@
+ ALLOWED_MODULES = {"base64", "contextlib", "dataclasses", "hashlib", "hmac", "json", "logging", "math", "re",
+                    "secrets", "sqlite3", "time"}
+ # Attribute names the app gives its own objects (functions, dataclass fields, state). Written out on purpose.
+-APP_ATTRS = {'TEST_SIGNING_KEY', '_body', '_dispatch', 'add_member', 'assign_ticket', 'authenticate', 'balance', 'can', 'can_grant', 'check_key', 'check_role', 'clock', 'create_ticket', 'credit', 'db', 'db_id', 'debit', 'fingerprint', 'get_ticket', 'is_active_member', 'key', 'login', 'remember', 'remove_member', 'replay', 'require', 'require_live', 'role', 'status', 'tenant_id', 'text', 'user_id'}
++APP_ATTRS = {'TEST_SIGNING_KEY', '_body', '_dispatch', 'add_comment', 'add_member', 'assign_ticket', 'authenticate', 'balance', 'can', 'can_grant', 'check_key', 'check_role', 'clock', 'create_ticket', 'credit', 'db', 'db_id', 'debit', 'fingerprint', 'get_ticket', 'is_active_member', 'key', 'list_comments', 'login', 'remember', 'remove_member', 'replay', 'require', 'require_live', 'role', 'status', 'tenant_id', 'text', 'user_id'}
+ # Attribute names the app uses on standard-library objects. Any attribute outside these two sets is refused.
+ STDLIB_ATTRS = {"Row", "append", "compare_digest", "compile", "connect", "contextmanager", "count", "decode",
+                 "dumps", "encode", "exception", "execute", "executescript", "fetchall", "fetchone", "fromhex",
+--- a/tests/test_lock_discipline.py
++++ b/tests/test_lock_discipline.py
+@@ -63,7 +63,7 @@
+ # transaction of the four keyed operations, whose traces include its INSERT.
+ COVERED_MUTATORS = {
+     "tenants.create_tenant", "tenants.add_member", "tenants.remove_member",
+-    "tickets.create_ticket", "tickets.assign_ticket",
++    "tickets.create_ticket", "tickets.assign_ticket", "tickets.add_comment",
+     "billing.credit", "billing.debit", "billing.create_invoice",
+     "idempotency.remember",
+ }

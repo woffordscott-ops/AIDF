@@ -1,0 +1,62 @@
+--- a/app/tenants/__init__.py
++++ b/app/tenants/__init__.py
+@@ -94,3 +94,23 @@
+             "UPDATE tickets SET assignee_id = NULL WHERE tenant_id = ? AND assignee_id = ?",
+             (principal.tenant_id, user_id),
+         )
++
++
++def change_role(db, principal, user_id, new_role):
++    permissions.require(principal, "member.manage")  # fast fail before taking the lock
++    user_id = validate.db_id(user_id, "user_id")
++    permissions.check_role(new_role)
++    with transaction(db):
++        actor_role = _live_actor_role(db, principal)
++        current = get_role(db, principal.tenant_id, user_id)
++        if current is None:
++            raise NotFound("member not found")
++        if not permissions.can_grant(actor_role, current) or not permissions.can_grant(actor_role, new_role):
++            raise Forbidden("cannot change a role above your own")
++        if current == "owner" and new_role in ("admin", "member") and _active_owner_count(db, principal.tenant_id) <= 1:
++            raise Conflict("cannot demote the last owner")
++        db.execute(
++            "UPDATE memberships SET role = ? WHERE tenant_id = ? AND user_id = ? AND active = 1",
++            (new_role, principal.tenant_id, user_id),
++        )
++    return {"user_id": user_id, "role": new_role}
+--- a/app/web.py
++++ b/app/web.py
+@@ -46,6 +46,11 @@
+ def _add_member(ctx, p, body):
+     tenants.add_member(ctx.db, p, body.get("user_id"), body.get("role"))
+     return 201, {"ok": True}
++
++
++@route("POST", r"/members/([0-9]{1,18})/role")
++def _change_role(ctx, p, body, uid):
++    return 200, tenants.change_role(ctx.db, p, int(uid), body.get("role"))
+ 
+ 
+ @route("DELETE", r"/members/([0-9]{1,18})")
+--- a/tests/source_scan.py
++++ b/tests/source_scan.py
+@@ -50,7 +50,7 @@
+ ALLOWED_MODULES = {"base64", "contextlib", "dataclasses", "hashlib", "hmac", "json", "logging", "math", "re",
+                    "secrets", "sqlite3", "time"}
+ # Attribute names the app gives its own objects (functions, dataclass fields, state). Written out on purpose.
+-APP_ATTRS = {'TEST_SIGNING_KEY', '_body', '_dispatch', 'add_member', 'assign_ticket', 'authenticate', 'balance', 'can', 'can_grant', 'check_key', 'check_role', 'clock', 'create_ticket', 'credit', 'db', 'db_id', 'debit', 'fingerprint', 'get_ticket', 'is_active_member', 'key', 'login', 'remember', 'remove_member', 'replay', 'require', 'require_live', 'role', 'status', 'tenant_id', 'text', 'user_id'}
++APP_ATTRS = {'TEST_SIGNING_KEY', '_body', '_dispatch', 'add_member', 'assign_ticket', 'authenticate', 'balance', 'can', 'change_role', 'can_grant', 'check_key', 'check_role', 'clock', 'create_ticket', 'credit', 'db', 'db_id', 'debit', 'fingerprint', 'get_ticket', 'is_active_member', 'key', 'login', 'remember', 'remove_member', 'replay', 'require', 'require_live', 'role', 'status', 'tenant_id', 'text', 'user_id'}
+ # Attribute names the app uses on standard-library objects. Any attribute outside these two sets is refused.
+ STDLIB_ATTRS = {"Row", "append", "compare_digest", "compile", "connect", "contextmanager", "count", "decode",
+                 "dumps", "encode", "exception", "execute", "executescript", "fetchall", "fetchone", "fromhex",
+--- a/tests/test_lock_discipline.py
++++ b/tests/test_lock_discipline.py
+@@ -62,7 +62,7 @@
+ # added uncovered. idempotency.remember is the one helper that writes: it only ever runs inside the
+ # transaction of the four keyed operations, whose traces include its INSERT.
+ COVERED_MUTATORS = {
+-    "tenants.create_tenant", "tenants.add_member", "tenants.remove_member",
++    "tenants.create_tenant", "tenants.add_member", "tenants.remove_member", "tenants.change_role",
+     "tickets.create_ticket", "tickets.assign_ticket",
+     "billing.credit", "billing.debit", "billing.create_invoice",
+     "idempotency.remember",

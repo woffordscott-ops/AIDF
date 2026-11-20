@@ -1,0 +1,86 @@
+--- a/app/permissions/__init__.py
++++ b/app/permissions/__init__.py
+@@ -1,7 +1,7 @@
+ """Role hierarchy and action permissions (INV-2)."""
+ from app.errors import Forbidden, Invalid
+ 
+-ROLE_RANK = {"viewer": 0, "member": 1, "admin": 2, "owner": 3}
++ROLE_LEVEL = {"viewer": 0, "member": 1, "admin": 2, "owner": 3}
+ 
+ MIN_ROLE = {
+     "ticket.read": "viewer",
+@@ -14,7 +14,7 @@
+ 
+ 
+ def check_role(role):
+-    if not isinstance(role, str) or role not in ROLE_RANK:
++    if not isinstance(role, str) or role not in ROLE_LEVEL:
+         raise Invalid(f"unknown role: {role!r}")
+     return role
+ 
+@@ -22,7 +22,7 @@
+ def can(role, action):
+     if action not in MIN_ROLE:
+         return False
+-    return role in ROLE_RANK and ROLE_RANK[role] >= ROLE_RANK[MIN_ROLE[action]]
++    return role in ROLE_LEVEL and ROLE_LEVEL[role] >= ROLE_LEVEL[MIN_ROLE[action]]
+ 
+ 
+ def require(principal, action):
+@@ -33,7 +33,7 @@
+ def can_grant(granter_role, target_role):
+     """A principal may grant only roles at or below their own."""
+     return (
+-        granter_role in ROLE_RANK
+-        and target_role in ROLE_RANK
+-        and ROLE_RANK[target_role] <= ROLE_RANK[granter_role]
++        granter_role in ROLE_LEVEL
++        and target_role in ROLE_LEVEL
++        and ROLE_LEVEL[target_role] <= ROLE_LEVEL[granter_role]
+     )
+--- a/tests/test_permissions_tenants.py
++++ b/tests/test_permissions_tenants.py
+@@ -17,7 +17,7 @@
+             "billing.write": {"admin", "owner"},
+         }
+         for action, allowed in expect.items():
+-            for role in permissions.ROLE_RANK:
++            for role in permissions.ROLE_LEVEL:
+                 self.assertEqual(permissions.can(role, action), role in allowed, (action, role))
+ 
+     def test_unknown_action_and_role_denied(self):
+@@ -25,8 +25,8 @@
+         self.assertFalse(permissions.can("superuser", "ticket.read"))
+ 
+     def test_can_grant_never_exceeds_own_rank(self):  # INV-2
+-        for g, gr in permissions.ROLE_RANK.items():
+-            for t, tr in permissions.ROLE_RANK.items():
++        for g, gr in permissions.ROLE_LEVEL.items():
++            for t, tr in permissions.ROLE_LEVEL.items():
+                 self.assertEqual(permissions.can_grant(g, t), tr <= gr)
+         self.assertFalse(permissions.can_grant("owner", "root"))
+ 
+--- a/tools/mutation_check.py
++++ b/tools/mutation_check.py
+@@ -30,8 +30,8 @@
+      'if target == "owner" and _active_owner_count(db, principal.tenant_id) <= 1:', "if False:",
+      "INV-2 last owner removable"),
+     ("app/permissions/__init__.py",
+-     "ROLE_RANK[target_role] <= ROLE_RANK[granter_role]",
+-     "ROLE_RANK[target_role] <= ROLE_RANK[granter_role] + 1",
++     "ROLE_LEVEL[target_role] <= ROLE_LEVEL[granter_role]",
++     "ROLE_LEVEL[target_role] <= ROLE_LEVEL[granter_role] + 1",
+      "INV-2 grant above own rank"),
+     ("app/web.py",
+      "return fn(self, principal, body, *match.groups())",
+@@ -209,8 +209,8 @@
+     ("app/tenants/__init__.py", '    user_id = validate.db_id(user_id, "user_id")\n    permissions.check_role(role)',
+      "    permissions.check_role(role)",
+      "add_member user id unvalidated"),
+-    ("app/permissions/__init__.py", "if not isinstance(role, str) or role not in ROLE_RANK:",
+-     "if role not in ROLE_RANK:",
++    ("app/permissions/__init__.py", "if not isinstance(role, str) or role not in ROLE_LEVEL:",
++     "if role not in ROLE_LEVEL:",
+      "unhashable role escapes as TypeError"),
+     ("app/web.py", 'r"/tickets/([0-9]{1,18})"', 'r"/tickets/(\\d+)"',
+      "path ids unbounded and accept non-ASCII digits"),

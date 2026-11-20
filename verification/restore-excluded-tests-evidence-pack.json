@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "change_id": "restore-excluded-tests",
+  "class": "T2",
+  "falsification": "If the manifest leaves one of the three test files out again, or the export test pins one as excluded again (test_the_committed_exclusions_are_exactly_the_approved_set, test_the_three_restored_tests_are_published_and_every_file_their_guards_wait_for_exists); if a file that a guard waits for is removed or renamed in the private tree (test_the_three_restored_tests_are_published_and_every_file_their_guards_wait_for_exists and test_every_excluded_path_exists_in_the_repository); if the manifest's notes differ from the approved text (test_the_notes_of_the_manifest_are_exactly_the_approved_text); if a guard is removed so that a test reads a missing file in the exported tree (the dry run recorded in the dispositions: python verification/export_public_tree.py --out <directory> --run-tests); if verification/export_public_tree.py differs from its version at the base (git diff).",
+  "jurisdiction": "This evidence covers falsifiable correctness only and makes no claim about requirement fitness, design quality or acceptable risk.",
+  "e0": {
+    "status": "passed",
+    "artifact": "python -m py_compile on the four changed test files exits 0."
+  },
+  "e1": {
+    "status": "passed",
+    "artifact": "python -m ruff check verification --no-cache exits 0; python verification/export_public_tree.py --scan-only prints PASS: no private identifier in the public tree; the preflight governance checks and the public-tree scan pass."
+  },
+  "e2": {
+    "status": "passed",
+    "artifact": "python -m unittest discover -s verification/tests: Ran 783 tests, OK (skipped=21), on Windows with Python 3.14, in the private tree (the base ran 782 with the same 21 skips; this change adds one test). The dry run python verification/export_public_tree.py --out <empty directory outside the repository> --run-tests at the implementation head exported 335 committed files, compiled 66 Python files, ran the exported suite (560 tests, OK, skipped=75; the base's export ran 388 with 22 skipped) and passed the scan and the byte-identity check.",
+    "coverage_boundary": "Covers the three test files' guards in the private tree and in the exported tree on Windows, and the manifest's exclusions and notes on the committed tree. It does not cover macOS or Linux runs, or the tests of other modules that read a left-out file (test_agent_routing_check.py is still left out)."
+  },
+  "e3": {
+    "status": "satisfied",
+    "mechanism": "mutation testing",
+    "counterfactual": "If a restored test could be left out again, or a file that a guard waits for could disappear from the private tree, or a guard could be removed so that a test reads a missing file in the public copy, with the evidence still passing, the evidence would fail; the mutations listed in the artifact did exactly these and each is failed by a test or by a run of the exported tree.",
+    "artifact": "Seven committed mutations were applied one at a time to a scratch clone and test_export_public_tree run: each of the three test files put back into exclude_files (killed by test_the_committed_exclusions_are_exactly_the_approved_set and by test_the_three_restored_tests_are_published_and_every_file_their_guards_wait_for_exists); suite-v1.json renamed and the gate-checker fixture removed (each killed by the existing test_every_excluded_path_exists_in_the_repository and by the second test above, because both files are also on the exclusion list); one of the three unqualified records removed and the environment profile removed (each killed by the second test only: neither file is on the exclusion list). Two guards were removed in turn (the class guard of test_qualification_check.py and one of the seven in test_aidf_check.py) and each module was run in the exported tree: 42 errors and 1 error respectively. All nine were killed."
+  },
+  "e4": [
+    {
+      "criterion": "AC1",
+      "check": "git diff <base> HEAD on the three test files shows only added guard definitions and decorators: one class guard in test_qualification_check.py, seven method guards in test_aidf_check.py, one method guard in test_reference_suite_v2.py, each with a reason that names the file; the dry run's exported suite shows 75 skips against 22 at the base (53 more; 50 are these guards, the other 3 are 1 skip that test_aidf_check.py already has in the private tree (the symlink test) and 2 skips in test_reference_suite_v2.py that happen only in the exported tree, where the pinned revision is not a commit).",
+      "status": "passed",
+      "artifact": "verification/tests/test_qualification_check.py; verification/tests/test_aidf_check.py; verification/tests/test_reference_suite_v2.py"
+    },
+    {
+      "criterion": "AC2",
+      "check": "the private suite at the implementation head: 783 tests, OK, skipped=21; the base: 782, skipped=21.",
+      "status": "passed",
+      "artifact": "python -m unittest discover -s verification/tests"
+    },
+    {
+      "criterion": "AC3",
+      "check": "test_the_three_restored_tests_are_published_and_every_file_their_guards_wait_for_exists passes and fails when the environment profile is removed (e3).",
+      "status": "passed",
+      "artifact": "verification/tests/test_export_public_tree.py"
+    },
+    {
+      "criterion": "AC4",
+      "check": "git diff <base> HEAD -- verification/public-export-manifest.json shows the three entries removed from exclude_files and the notes sentence reworded, nothing else; the pinned list and the notes pin in the export test carry the same change.",
+      "status": "passed",
+      "artifact": "verification/public-export-manifest.json"
+    },
+    {
+      "criterion": "AC5",
+      "check": "the dry run of e2: compile, exported suite, scan and byte identity PASS; 560 tests and 75 skips against 388 and 22 at the base.",
+      "status": "passed",
+      "artifact": "python verification/export_public_tree.py --out <directory> --run-tests exits 0."
+    },
+    {
+      "criterion": "AC6",
+      "check": "git diff <base> HEAD -- verification/export_public_tree.py is empty; git diff --stat shows changes only to the four test files, the manifest, CHANGELOG.md and this change's own records; no left-out file is in the exported tree (the scan and the byte-identity check pass).",
+      "status": "passed",
+      "artifact": "git diff output."
+    },
+    {
+      "criterion": "AC7",
+      "check": "the contract's declared_scope names the report and dispositions paths; the preflight scope check passes.",
+      "status": "passed",
+      "artifact": "verification/restore-excluded-tests-task-contract.json"
+    }
+  ],
+  "e5": "Tested: the guards in the private and the exported tree, the manifest's three entries and notes, the pin test and eight mutations. Shapes that still pass: a guard that skips on a file that exists but is broken (the guards test existence only); a new test added later to one of the three files that reads a left-out file without a guard (the exported suite would fail on the dry run, which is run by hand before a publication, not by every commit); a guard rewritten to wait for a path that does not exist (it skips in the private tree and the pin, which lists the paths by hand, stays green); a left-out file renamed together with its guard and its pin; the fourth left-out test (test_agent_routing_check.py) and the files named by this contract as out of scope.",
+  "e6": "Invariants touched: the public export's rule that it only excludes and never rewrites a file is unchanged; the three test files and the export test are edited in the private tree by adding guards and a test; the manifest loses three entries and one sentence changes. The export tool is unchanged.",
+  "residual_risk": "Limits, each a plain fact. A guard skips when a file is missing in any tree; in the private tree only the pin test notices a missing file. The public copy's suite now skips 75 tests that read files it does not hold; a reader sees them as skips with a reason. The scan is a denylist over the literal name and a few joined forms, and git history is unchanged. The pilot profiles, the fixture and the two v1 suites are still left out of the published copy, and test_agent_routing_check.py with them."
+}

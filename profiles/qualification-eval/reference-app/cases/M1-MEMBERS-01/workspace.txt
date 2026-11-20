@@ -1,0 +1,1 @@
+The workspace is the base reference application as merged in MR 1 (app/ and tools/, and tests/ without test_hygiene.py), without DESIGN.md, without the cases/ directory and without tests/test_cases_m0.py and tests/test_cases_m1.py.

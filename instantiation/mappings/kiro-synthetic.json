@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "name": "kiro-synthetic",
+  "detect": [".kiro/specs/*/requirements.md"],
+  "id_from": ".kiro/specs/*/requirements.md",
+  "rules": [
+    {"source": ".kiro/specs/*/requirements.md", "operation": "section", "heading": "Introduction", "target": "intended_outcome"},
+    {"source": ".kiro/specs/*/requirements.md", "operation": "blocks", "prefix": "Requirement", "target": "acceptance_criteria"},
+    {"source": ".kiro/specs/*/design.md", "operation": "file", "target": "approach"},
+    {"source": ".kiro/specs/*/tasks.md", "operation": "checklist", "target": "declared_scope"}
+  ]
+}

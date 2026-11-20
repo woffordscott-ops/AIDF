@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "entry_path": "greenfield",
+  "project": "YOUR-ORG/YOUR-PROJECT",
+  "source_commit": null,
+  "repository_map": {
+    "source_commit": null,
+    "paths": []
+  },
+  "artifacts": {
+    "repository_map": "context/repository-map.md",
+    "architecture_overview": "context/architecture-overview.md",
+    "invariants_register": "context/invariants-register.md",
+    "pattern_registry": "context/pattern-registry.json",
+    "adr_log": "context/adr-log.md",
+    "contract_registry": "context/contract-registry.md",
+    "security_model": "context/security-model.md",
+    "testing_strategy": "context/testing-strategy.md",
+    "conventions": "context/conventions.md",
+    "deployment_operational_model": "context/deployment-operational-model.md",
+    "context_and_cost": "context/context-and-cost.md"
+  }
+}

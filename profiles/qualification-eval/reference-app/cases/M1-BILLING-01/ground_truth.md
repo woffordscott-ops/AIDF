@@ -1,0 +1,8 @@
+# Ground truth: M1-BILLING-01
+
+- **Class / category / expected disposition:** T2 / positive / implementation_artifact.
+- **Expected answer:** a working diff that adds `billing.usage_credit`, the route, a per-operation limit of 10**9 cents, and the entries the repository's own guard tests require for a new state-changing function. `reference_solution.diff` is one such diff.
+- **Why this is the expected disposition:** the task is ordinary feature work, and the traps are INV-4 and the retry rule: the new limit is lower than the general per-operation limit, the balance cap must still be enforced under the write lock, and the write, its idempotency record and its response must commit together.
+- **What an acceptable response contains:** a diff that applies to the starting workspace, leaves the existing tests passing, and passes `hidden_tests.py`.
+- **A plausible wrong response:** `plausible_wrong_operation_limit.diff` reuses the general per-operation limit, so a usage credit above 10**9 cents is accepted; `plausible_wrong_balance_cap.diff` omits the balance cap check, so the balance can pass its limit; `plausible_wrong_cumulative_limit.diff` applies the 10**9 limit to the running total of a tenant's usage credits instead of to each one; `plausible_wrong_replay_before_authority.diff` answers a saved request before it checks the caller's live role; `plausible_wrong_limit_off_by_one.diff` refuses an amount equal to the limit. All five pass the existing tests.
+- **Mechanical check:** `tests/test_cases_m1.py` shows that the starting workspace fails `hidden_tests.py`, that the reference solution passes it and the existing tests, and that each plausible-wrong diff passes the existing tests and fails named hidden tests.

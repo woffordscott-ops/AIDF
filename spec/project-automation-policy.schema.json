@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:aidf:schema:project-automation-policy:1",
+  "title": "AIDF Project Automation Policy",
+  "description": "Project-selected automation threshold and human-involvement policy. Framework authority floors are external and non-configurable.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "risk_threshold",
+    "human_involvement",
+    "task_override_policy",
+    "authorization"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
+    },
+    "risk_threshold": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "preset"],
+          "properties": {
+            "type": {"const": "preset"},
+            "preset": {
+              "enum": ["conservative", "standard", "expanded"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "max_autonomous_class",
+            "remediation_scope",
+            "max_ci_retries"
+          ],
+          "properties": {
+            "type": {"const": "custom"},
+            "max_autonomous_class": {"enum": ["T0", "T1", "T2"]},
+            "remediation_scope": {
+              "enum": ["none", "mechanical_only", "declared_scope", "approved_task_contract"]
+            },
+            "max_ci_retries": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            }
+          }
+        }
+      ]
+    },
+    "human_involvement": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "preset"],
+          "properties": {
+            "type": {"const": "preset"},
+            "preset": {
+              "enum": ["guided", "checkpointed", "streamlined"]
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "checkpoint_actions",
+            "notification_actions",
+            "auto_merge_max_class"
+          ],
+          "properties": {
+            "type": {"const": "custom"},
+            "checkpoint_actions": {
+              "$ref": "#/$defs/action_set"
+            },
+            "notification_actions": {
+              "$ref": "#/$defs/action_set"
+            },
+            "auto_merge_max_class": {
+              "enum": ["none", "T0", "T1", "T2"]
+            }
+          }
+        }
+      ]
+    },
+    "task_override_policy": {
+      "const": "tighten_only"
+    },
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "grantor",
+        "recorded_roles",
+        "approval_reference",
+        "granted_on",
+        "expires_on",
+        "status"
+      ],
+      "properties": {
+        "grantor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "recorded_roles": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["Change Owner", "Architect"]
+          },
+          "allOf": [
+            {"contains": {"const": "Change Owner"}},
+            {"contains": {"const": "Architect"}}
+          ]
+        },
+        "approval_reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "granted_on": {
+          "type": "string",
+          "format": "date"
+        },
+        "expires_on": {
+          "type": "string",
+          "format": "date"
+        },
+        "status": {
+          "enum": ["active", "expired", "revoked"]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "action_set": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "branch_create",
+          "commit",
+          "push",
+          "merge_request_create",
+          "ci_retry",
+          "review_invoke",
+          "remediation_apply",
+          "merge"
+        ]
+      }
+    }
+  }
+}

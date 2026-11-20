@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "change_id": "fixture-negative",
+  "class": "T1",
+  "spec_confidence": "Vague",
+  "intended_outcome": "Demonstrate rejection of unclear work.",
+  "acceptance_criteria": [{"id": "AC1", "text": "This must fail."}],
+  "declared_scope": ["src/**"],
+  "tripwires": [],
+  "dependency_changes": []
+}

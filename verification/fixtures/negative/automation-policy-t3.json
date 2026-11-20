@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "project_id": "example/unsafe",
+  "risk_threshold": {
+    "type": "custom",
+    "max_autonomous_class": "T3",
+    "remediation_scope": "approved_task_contract",
+    "max_ci_retries": 1
+  },
+  "human_involvement": {
+    "type": "preset",
+    "preset": "streamlined"
+  },
+  "task_override_policy": "tighten_only",
+  "authorization": {
+    "grantor": "Example Owner",
+    "recorded_roles": ["Change Owner", "Architect"],
+    "approval_reference": "Example approval record",
+    "granted_on": "2026-08-30",
+    "expires_on": "2026-11-30",
+    "status": "active"
+  }
+}

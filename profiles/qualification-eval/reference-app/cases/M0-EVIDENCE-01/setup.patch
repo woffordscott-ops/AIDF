@@ -1,0 +1,11 @@
+--- a/app/auth/__init__.py
++++ b/app/auth/__init__.py
+@@ -99,7 +99,7 @@
+         role, expires = payload["role"], payload["exp"]
+     except (ValueError, KeyError, TypeError) as exc:
+         raise AuthError("malformed token") from exc
+-    if not _finite_number(expires) or now >= expires:
++    if not _finite_number(expires) or now > expires:
+         raise AuthError("token expired")
+     return Principal(user_id=user_id, tenant_id=tenant_id, role=role)
+ 

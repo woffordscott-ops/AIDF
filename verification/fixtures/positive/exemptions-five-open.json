@@ -1,0 +1,7 @@
+[
+  {"schema_version": 1, "exemption_id": "EX-1", "change_id": "fixture-1", "class": "T1", "mechanisms_attempted": "fixture", "approved_by": "Fixture Owner", "expiry": "2099-12-31", "status": "Open", "retirement_evidence": ""},
+  {"schema_version": 1, "exemption_id": "EX-2", "change_id": "fixture-2", "class": "T1", "mechanisms_attempted": "fixture", "approved_by": "Fixture Owner", "expiry": "2099-12-31", "status": "Open", "retirement_evidence": ""},
+  {"schema_version": 1, "exemption_id": "EX-3", "change_id": "fixture-3", "class": "T1", "mechanisms_attempted": "fixture", "approved_by": "Fixture Owner", "expiry": "2099-12-31", "status": "Open", "retirement_evidence": ""},
+  {"schema_version": 1, "exemption_id": "EX-4", "change_id": "fixture-4", "class": "T1", "mechanisms_attempted": "fixture", "approved_by": "Fixture Owner", "expiry": "2099-12-31", "status": "Open", "retirement_evidence": ""},
+  {"schema_version": 1, "exemption_id": "EX-5", "change_id": "fixture-5", "class": "T1", "mechanisms_attempted": "fixture", "approved_by": "Fixture Owner", "expiry": "2099-12-31", "status": "Open", "retirement_evidence": ""}
+]

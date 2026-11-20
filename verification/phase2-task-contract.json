@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "change_id": "phase2-verification-spine",
+  "class": "T3",
+  "spec_confidence": "Clear",
+  "intended_outcome": "Implement the locked V1.2.2 Phase 2 Verification Spine as reusable, mechanically testable controls without overstating weak or absent product tests.",
+  "acceptance_criteria": [
+    {"id": "AC1", "text": "All documentation, template, metric, and checker deliverables in the approved implementation brief exist."},
+    {"id": "AC2", "text": "Every mechanical control and confirmed bypass has automated positive and negative fixtures or controlled mutation evidence."},
+    {"id": "AC3", "text": "GitLab independently prevents bypass or removal of the selected required governance job, executes immutable trusted enforcement logic, and blocks a failing governance case before a corrected case passes."},
+    {"id": "AC4", "text": "The actively pinned Phase 2 external policy is re-pinned to the prior protected immutable policy and then reapplied before merge through the required pipeline. When immutable attestations or approved dependencies make the prior policy incompatible with the newer branch state, successful rollback evidence is an observable fail-closed rejection, not a green pipeline. Successful reapplication requires restoration of the current mechanical and security checks. No compatible-green prior-policy result is required or claimed."},
+    {"id": "AC5", "text": "No control claims evidence outside its jurisdiction or represents absent coverage as green."},
+    {"id": "AC6", "text": "Spec Confidence remains Clear against locked V1.2.2 and the approved boundary."},
+    {"id": "AC7", "text": "A fresh clean-room Verifier and a distinct Security Reviewer pass the completed T3 change before explicit human merge approval."}
+  ],
+  "declared_scope": [
+    "core/04-verification.md",
+    "spec/PHASE2-IMPLEMENTATION-BRIEF.md",
+    "spec/PHASE2-TASK-CONTRACT.md",
+    "templates/evidence-pack.md",
+    "templates/exemption.md",
+    "metrics/README.md",
+    "metrics/definitions.md",
+    "metrics/classification-audit.md",
+    "verification/**",
+    ".gitlab-ci.yml",
+    "README.md",
+    "IMPLEMENTATION-STATUS.md"
+  ],
+  "tripwires": ["infrastructure"],
+  "approved_by": "Scott Wofford, Change Owner",
+  "approved_date": "2026-08-20",
+  "dependency_changes": [
+    {
+      "path": ".gitlab-ci.yml",
+      "dependency": "python:3.12.13-alpine3.23@sha256:efc8538b7449b6d893de5d852c87a0dc2cffd0ec27b07dd98ba3e7edaadc26af",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit exact replacement approval after pinned-database scanning in the Phase 2 implementation task on 2026-08-19"
+    },
+    {
+      "path": ".gitlab-ci.yml",
+      "dependency": "aquasec/trivy:0.74.0@sha256:ee940acbf1f58ebadb42d01434ce4609530bf1b52536afbd1eee66cd7123c5c9",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit exact replacement approval after pinned-database scanning in the Phase 2 implementation task on 2026-08-19"
+    },
+    {
+      "path": ".gitlab-ci.yml",
+      "dependency": "alpine/git:v2.54.0@sha256:a299a963fbe31628ab481ca42907bcf0691d004f86734c02638abdf513691d42",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit exact-dependency and separate diff-job approval in the Phase 2 implementation task on 2026-08-19"
+    },
+    {
+      "path": ".gitlab-ci.yml",
+      "dependency": "ghcr.io/aquasecurity/trivy-db@sha256:5eff36d848af4339c297f4c0a497c5db6eea3382c94959bb91a8d278274c1e2f",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit exact Trivy database dependency approval in the Phase 2 implementation task on 2026-08-19"
+    },
+    {
+      "path": ".gitlab-ci.yml",
+      "dependency": "content-sha256:9a7333b51c42e9f285385cf1922201172921016911e33571d8697caa0dbc3c95",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Approved exact Phase 2 static-analysis dependency set and resulting immutable manifest update on 2026-08-20"
+    },
+    {
+      "path": "verification/requirements-static.txt",
+      "dependency": "mypy==1.18.2 --hash=sha256:a2afc0fa0b0e91b4599ddfe0f91e2c26c2b5a5ab263737e998d6817874c5f7c8 --hash=sha256:22a1748707dd62b58d2ae53562ffc4d7f8bcc727e8ac7cbc69c053ddc874d47e",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit approval of the exact hashed mypy and Ruff CI dependency set on 2026-08-20"
+    },
+    {
+      "path": "verification/requirements-static.txt",
+      "dependency": "mypy_extensions==1.1.0 --hash=sha256:1be4cccdb0f2482337c4743e60421de3a356cd97508abadd57d47403e94f5505",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit approval of the exact hashed mypy and Ruff CI dependency set on 2026-08-20"
+    },
+    {
+      "path": "verification/requirements-static.txt",
+      "dependency": "pathspec==0.12.1 --hash=sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit approval of the exact hashed mypy and Ruff CI dependency set on 2026-08-20"
+    },
+    {
+      "path": "verification/requirements-static.txt",
+      "dependency": "ruff==0.16.1 --hash=sha256:67e1e1e3fa4f0c82f0e36d4cd61e661f6e7a6196cb1aa92fe0828fa7b8f257cd",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit approval of the exact hashed mypy and Ruff CI dependency set on 2026-08-20"
+    },
+    {
+      "path": "verification/requirements-static.txt",
+      "dependency": "typing_extensions==4.15.0 --hash=sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit approval of the exact hashed mypy and Ruff CI dependency set on 2026-08-20"
+    },
+    {
+      "path": "verification/requirements-static.txt",
+      "dependency": "content-sha256:165ce18e50c77b26c8ad42c800bc0445f02c0958765b2f33f5df9e53e508ce73",
+      "pinned": true,
+      "approved_by": "Scott Wofford, Change Owner",
+      "approval_reference": "Explicit approval of the exact hashed mypy and Ruff CI dependency set and immutable manifest-content enforcement on 2026-08-20"
+    }
+  ]
+}

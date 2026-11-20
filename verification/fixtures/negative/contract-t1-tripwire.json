@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "change_id": "fixture-tripwire",
+  "class": "T1",
+  "spec_confidence": "Clear",
+  "intended_outcome": "Demonstrate forced T3 classification.",
+  "acceptance_criteria": [{"id": "AC1", "text": "The trip-wire must fail this record."}],
+  "declared_scope": ["src/auth/**"],
+  "tripwires": ["authentication-authorization-session-permissions"],
+  "dependency_changes": []
+}

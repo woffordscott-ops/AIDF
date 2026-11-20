@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "project_id": "example/expired",
+  "risk_threshold": {"type": "preset", "preset": "standard"},
+  "human_involvement": {"type": "preset", "preset": "checkpointed"},
+  "task_override_policy": "tighten_only",
+  "authorization": {
+    "grantor": "Example Owner",
+    "recorded_roles": ["Change Owner", "Architect"],
+    "approval_reference": "Expired example",
+    "granted_on": "2025-01-01",
+    "expires_on": "2025-12-31",
+    "status": "active"
+  }
+}

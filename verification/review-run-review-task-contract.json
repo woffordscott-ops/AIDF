@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "change_id": "review-run-review",
+  "class": "T2",
+  "spec_confidence": "Clear",
+  "intended_outcome": "One command turns the head to review into a committed, byte-exact reviewer report: the head pinned to a full SHA, a throwaway clean clone, the preflight run first, the reviewer started with an allowlist environment, the answer kept unmodified, its Outcome line checked, and the report committed alone. The human starts the reviewer.",
+  "acceptance_criteria": [
+    {
+      "id": "AC1",
+      "text": "Pinned head and clean checkout: run_review.py resolves --head to a full commit SHA and prints it; refuses when the working tree has uncommitted tracked changes or when the head is not an ancestor of HEAD of the repository it runs in; makes a throwaway clone of the repository (own object store and refs, not a git worktree) in a new empty directory outside the repository, checked out detached at that SHA; with --previous the delta command goes into the brief."
+    },
+    {
+      "id": "AC2",
+      "text": "Preflight first: the tool runs verification/preflight.py with --contract and --evidence against the head before the reviewer, attaches its output to the brief, and does not start the reviewer if it exits non-zero; --skip-preflight REASON runs anyway and writes the reason into the brief and the log."
+    },
+    {
+      "id": "AC3",
+      "text": "Brief: the tool adds a computed header (role and round, head, previous head and delta, base, checkout path, outcome words) and the preflight output to a brief file the Implementer prepared, writes it outside the checkout and passes the reviewer its path in a fixed instruction; no shell is used, and a .cmd or .bat launcher is refused any argument with characters cmd.exe interprets."
+    },
+    {
+      "id": "AC4",
+      "text": "Reviewer environment: the reviewer process receives an allowlist environment (the names the reviewer CLI needs to run) plus the variables named with --pass-env; it drops every GIT_ variable, and sets the working directory to the checkout; the log and the screen show variable names, never values."
+    },
+    {
+      "id": "AC5",
+      "text": "Reviewer run: the default profile is cursor-agent -p --output-format text --trust --force [--sandbox enabled on macOS and Linux, omitted on Windows where cursor-agent refuses it; the tool then prints and logs that no sandbox is in effect] --model MODEL with the instruction to read the brief file; --reviewer-command replaces it; a timeout, an interrupt (Ctrl-C), any other end of the tool (a termination, a hang-up, SIGQUIT, a kill, a forced end on Windows) and a normal end of the reviewer all kill the reviewer's children that stay in its process group or job, and kill the reviewer too except in a normal end; standard output and error are kept separately as bytes; a non-zero exit commits nothing."
+    },
+    {
+      "id": "AC6",
+      "text": "Verbatim answer: the answer is standard output bytes written with no change of line endings, encoding or whitespace; its SHA-256 is printed."
+    },
+    {
+      "id": "AC7",
+      "text": "Outcome line: the last non-empty line must be exactly Outcome: PASS, Outcome: PASS_WITH_ADVISORIES or Outcome: BLOCKED; otherwise nothing is committed, the answer is kept as answer.rejected and the tool exits non-zero; --accept-nonconforming REASON commits it, prints that this is a waiver of the Implementer's own rule and logs the reason."
+    },
+    {
+      "id": "AC8",
+      "text": "The checkout is unchanged: after the reviewer exits the clone's HEAD must be the pinned SHA and every file in the clone (ignored files included) must have the content and mode it had when the reviewer started and every link the same target, compared without running git in the clone, and the repository's config, config.worktree and info/attributes and the user's global git configuration must be unchanged, and the output directory must still be the same directory, and the repository the tool ran in must have the same HEAD, refs and tracked changes; otherwise the run is invalid and nothing is committed."
+    },
+    {
+      "id": "AC9",
+      "text": "Answer scan: the tool refuses an answer containing the value (8 characters or more) of any environment variable of its own process whose name looks like a secret, or of any --pass-env variable; it names the variable, never prints the value, and redacts such values from the logged reviewer command."
+    },
+    {
+      "id": "AC10",
+      "text": "Report commit, alone: the report path must match a report pattern in the declared_scope of the change's JSON contract; the tool commits only that path on top of the pinned head, refuses if HEAD has moved, checks that the blob in the commit has the SHA-256 of the answer bytes before the commit is moved onto the branch (so CRLF reports keep their digests), and that no other path is staged; no repository hook and no fsmonitor command runs on any git call of the tool (core.hooksPath is an empty directory, checked to be empty before every git call); it never pushes, never amends and never touches the dispositions file."
+    },
+    {
+      "id": "AC11",
+      "text": "Log: start and end times (UTC), duration, model, head, previous head, exit status, outcome word, answer SHA-256, the names of passed variables, and any skip or waiver reason are written to review-run.json in the output directory and printed; the log is not committed."
+    },
+    {
+      "id": "AC12",
+      "text": "Tests: verification/tests/test_run_review.py uses a stand-in Python script as the reviewer (no test starts a real reviewer) and has a test per criterion that fails without it; mypy --strict and ruff pass on verification/run_review.py; CHANGELOG.md records the change as additive."
+    },
+    {
+      "id": "AC13",
+      "text": "Scope: no change to verification/aidf_check.py, verification/phase2-task-contract.json, .gitlab-ci.yml, KERNEL.md, trip-wires, core/02-authority.md, core/05-review.md or verification/preflight.py."
+    },
+    {
+      "id": "AC14",
+      "text": "Outcome records (core/05-review.md section 6): the review report patterns are verification/review-run-review-verifier-report*.md and verification/review-run-review-security-review-report*.md; the dispositions file is verification/review-run-review-verifier-dispositions.md. This criterion only declares the outcome-record paths."
+    }
+  ],
+  "declared_scope": [
+    "verification/run_review.py",
+    "verification/tests/test_run_review.py",
+    "templates/review-brief.md",
+    "CHANGELOG.md",
+    "spec/AIDF-REVIEW-RUN-REVIEW-TASK-CONTRACT.md",
+    "verification/review-run-review-task-contract.json",
+    "verification/review-run-review-evidence-pack.json",
+    "verification/review-run-review-verifier-dispositions.md",
+    "verification/review-run-review-verifier-report.md",
+    "verification/review-run-review-verifier-report-round2.md",
+    "verification/review-run-review-verifier-report-round3.md",
+    "verification/review-run-review-security-review-report.md",
+    "verification/review-run-review-security-review-report-round2.md",
+    "verification/review-run-review-security-review-report-round3.md",
+    "verification/review-run-review-security-review-report-round4.md",
+    "verification/review-run-review-security-review-report-round5.md",
+    "verification/review-run-review-verifier-report-round4.md",
+    "verification/review-run-review-verifier-report-round5.md",
+    "verification/review-run-review-verifier-report-round6.md",
+    "verification/review-run-review-verifier-report-round7.md",
+    "verification/public-export-manifest.json",
+    "verification/tests/test_export_public_tree.py"
+  ],
+  "tripwires": [],
+  "approved_by": "Scott Wofford, Change Owner and Architect",
+  "approved_date": "2026-11-02",
+  "dependency_changes": []
+}

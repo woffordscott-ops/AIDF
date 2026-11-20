@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "change_id": "fixture-tripwire",
+  "class": "T3",
+  "spec_confidence": "Clear",
+  "intended_outcome": "Prove declared trip-wire handling.",
+  "acceptance_criteria": [{"id": "AC1", "text": "The trip-wire is declared."}],
+  "declared_scope": ["src/auth/**"],
+  "tripwires": ["authentication-authorization-session-permissions"],
+  "approved_by": "Fixture Change Owner",
+  "approved_date": "2026-08-19",
+  "dependency_changes": []
+}

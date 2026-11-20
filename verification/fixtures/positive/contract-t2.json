@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "change_id": "fixture-positive",
+  "class": "T2",
+  "spec_confidence": "Clear",
+  "intended_outcome": "Prove a conforming structural change record.",
+  "acceptance_criteria": [
+    {"id": "AC1", "text": "The fixture passes its declared check."}
+  ],
+  "declared_scope": ["src/**", "requirements.txt"],
+  "tripwires": [],
+  "approved_by": "Fixture Change Owner",
+  "approved_date": "2026-08-19",
+  "dependency_changes": [
+    {
+      "path": "requirements.txt",
+      "dependency": "fixture-package==1.0.0",
+      "pinned": true,
+      "approved_by": "Fixture Change Owner",
+      "approval_reference": "FIXTURE-APPROVAL-NOT-REAL"
+    }
+  ]
+}

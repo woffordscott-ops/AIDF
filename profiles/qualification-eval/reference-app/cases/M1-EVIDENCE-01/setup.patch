@@ -1,0 +1,11 @@
+--- a/app/billing/__init__.py
++++ b/app/billing/__init__.py
+@@ -60,7 +60,7 @@
+         if saved is not None:
+             return saved
+         new_balance = _balance(db, principal.tenant_id) - amount
+-        if new_balance < 0:
++        if new_balance < -1:
+             raise Conflict("insufficient balance")
+         db.execute(
+             "INSERT INTO ledger (tenant_id, kind, amount_cents) VALUES (?, 'debit', ?)",

@@ -1,0 +1,167 @@
+{
+  "tool": "openspec",
+  "pinned": {
+    "tag": "v1.16.0",
+    "commit": "27c0515724decc633818c735ee596481eec78a8b"
+  },
+  "model": "grok-4.7-high",
+  "platform": "win32",
+  "sandbox": "none: the agent CLI supports its sandbox only on macOS and Linux",
+  "telemetry_settings": {
+    "OPENSPEC_TELEMETRY": "0",
+    "DO_NOT_TRACK": "1"
+  },
+  "environment_names": [
+    "APPDATA",
+    "COMSPEC",
+    "DO_NOT_TRACK",
+    "HOME",
+    "HOMEDRIVE",
+    "HOMEPATH",
+    "LOCALAPPDATA",
+    "MYPY_CACHE_DIR",
+    "NPM_CONFIG_CACHE",
+    "NPM_CONFIG_PREFIX",
+    "NPM_CONFIG_UPDATE_NOTIFIER",
+    "NoDefaultCurrentDirectoryInExePath",
+    "OPENSPEC_TELEMETRY",
+    "PATH",
+    "PATHEXT",
+    "PROGRAMDATA",
+    "PYTEST_ADDOPTS",
+    "PYTHONDONTWRITEBYTECODE",
+    "PYTHONPYCACHEPREFIX",
+    "RUFF_CACHE_DIR",
+    "SYSTEMDRIVE",
+    "SYSTEMROOT",
+    "TEMP",
+    "TERM",
+    "TMP",
+    "USERNAME",
+    "USERPROFILE",
+    "UV_CACHE_DIR",
+    "UV_TOOL_BIN_DIR",
+    "UV_TOOL_DIR",
+    "WINDIR"
+  ],
+  "steps": [
+    {
+      "name": "install",
+      "argv": [
+        "npm",
+        "install",
+        "--prefix",
+        "<workspace>\\npm",
+        "--no-audit",
+        "--no-fund",
+        "@fission-ai/openspec@1.16.0"
+      ],
+      "prompt_on_stdin": false,
+      "exit": 0,
+      "seconds": 4.6,
+      "error": null,
+      "stdout_tail": "\nadded 57 packages in 4s\n",
+      "stderr_tail": "",
+      "writes": {
+        "added": [],
+        "removed": [],
+        "changed": [],
+        "touched": []
+      }
+    },
+    {
+      "name": "version",
+      "argv": [
+        "openspec",
+        "--version"
+      ],
+      "prompt_on_stdin": false,
+      "exit": 0,
+      "seconds": 0.1,
+      "error": null,
+      "stdout_tail": "1.16.0\n",
+      "stderr_tail": "",
+      "writes": {
+        "added": [],
+        "removed": [],
+        "changed": [],
+        "touched": []
+      }
+    },
+    {
+      "name": "init",
+      "argv": [
+        "openspec",
+        "init",
+        "--tools",
+        "cursor"
+      ],
+      "prompt_on_stdin": false,
+      "exit": 0,
+      "seconds": 0.6,
+      "error": null,
+      "stdout_tail": "- Creating OpenSpec structure...\n▌ OpenSpec structure created\n\nOpenSpec Setup Complete\n\nCreated: Cursor\n6 skills and 6 commands in .cursor/\nConfig: openspec/config.yaml (schema: spec-driven)\n\nGetting started:\n  Start your first change: /opsx-propose \"your idea\"\n\nNote: 6 more workflows are available (new, continue, ff, bulk-archive, verify, onboard).\nAdd them with `openspec config profile`.\n\nLearn more: https://github.com/Fission-AI/OpenSpec\nFeedback:   https://github.com/Fission-AI/OpenSpec/issues\n\nRestart your IDE to refresh commands.\n\n",
+      "stderr_tail": "- Setting up Cursor...\n\u001b[32m✔\u001b[39m Setup complete for Cursor\n",
+      "writes": {
+        "added": [
+          ".cursor/commands/opsx-apply.md",
+          ".cursor/commands/opsx-archive.md",
+          ".cursor/commands/opsx-explore.md",
+          ".cursor/commands/opsx-propose.md",
+          ".cursor/commands/opsx-sync.md",
+          ".cursor/commands/opsx-update.md",
+          ".cursor/skills/openspec-apply-change/SKILL.md",
+          ".cursor/skills/openspec-archive-change/SKILL.md",
+          ".cursor/skills/openspec-explore/SKILL.md",
+          ".cursor/skills/openspec-propose/SKILL.md",
+          ".cursor/skills/openspec-sync-specs/SKILL.md",
+          ".cursor/skills/openspec-update-change/SKILL.md",
+          "openspec/changes/archive/.gitkeep",
+          "openspec/config.yaml",
+          "openspec/specs/.gitkeep"
+        ],
+        "removed": [],
+        "changed": [],
+        "touched": []
+      }
+    },
+    {
+      "name": "agent",
+      "argv": [
+        "<home>/AppData/Local/cursor-agent/cursor-agent.cmd",
+        "-p",
+        "--output-format",
+        "text",
+        "--trust",
+        "--force",
+        "--model",
+        "grok-4.7-high"
+      ],
+      "prompt_on_stdin": true,
+      "exit": 0,
+      "seconds": 181.2,
+      "error": null,
+      "stdout_tail": "Change **add-slugify** is planned under `openspec/changes/add-slugify`. I followed `.cursor/skills/openspec-propose/SKILL.md` (same workflow as `.cursor/commands/opsx-propose.md`, `/opsx-propose`). No store was selected. `openspec/config.yaml` has no `context` string, so the default schema `spec-driven` was used.\n\n**Commands**\n\n- `openspec list --json`\n- `openspec context --json`\n- `openspec new change \"add-slugify\"`\n- `openspec status --change \"add-slugify\" --json` (after each artifact)\n- `openspec list --specs` (result: `No specs found.`)\n- `openspec instructions proposal --change \"add-slugify\" --json`\n- `openspec instructions specs --change \"add-slugify\" --json`\n- `openspec instructions design --change \"add-slugify\" --json`\n- `openspec instructions tasks --change \"add-slugify\" --json`\n- `openspec status --change \"add-slugify\"`\n- `openspec validate --change \"add-slugify\"` — failed: `unknown option '--change'`\n- `openspec validate --help`\n- `openspec validate add-slugify --type change --strict --json` — passed, `valid: true`, `issues: []`\n\n**Files created**\n\n- `openspec/changes/add-slugify/.openspec.yaml` (created by `openspec new change`)\n- `openspec/changes/add-slugify/proposal.md`\n- `openspec/changes/add-slugify/specs/title-slug/spec.md`\n- `openspec/changes/add-slugify/tasks.md`\n\n**Skipped:** `design.md`. The design instruction says to create it only for a cross-cutting change, a new dependency or data model, security/performance/migration complexity, or ambiguity that still needs a technical decision. This change is one function in `slug.py`. The space-run assumption is already in `proposal.md`.\n\n**Status I saw:** `Progress: 3/4 artifacts complete` — proposal, specs, and tasks checked; design unchecked. Next line from the tool: `openspec instructions design --change \"add-slugify\" --json`. Strict validation still passed.\n\nNothing blocked the proposal, spec, or tasks. The first validate invocation used a flag the CLI does not accept; the corrected command succeeded.\n\n**Not done:** no apply or implement step, and no edit to `slug.py` or any other code file. `slug.py` was only read. It currently defines `shout` and nothing else.\n\nThe artifacts are ready for review. When you are ready, run `/opsx-apply` or ask me to apply this change.\n\nNo credentials, certificates, or cryptographic algorithms were added. Those checks apply because new files were written, and none of those patterns are in the planning artifacts.\n",
+      "stderr_tail": "",
+      "writes": {
+        "added": [
+          "openspec/changes/add-slugify/.openspec.yaml",
+          "openspec/changes/add-slugify/proposal.md",
+          "openspec/changes/add-slugify/specs/title-slug/spec.md",
+          "openspec/changes/add-slugify/tasks.md"
+        ],
+        "removed": [],
+        "changed": [],
+        "touched": []
+      }
+    }
+  ],
+  "answers": {
+    "a_install": "yes: installed into a scratch prefix",
+    "b_init_writes": "exit 0; added 15 files, changed 0: .cursor/commands/opsx-apply.md, .cursor/commands/opsx-archive.md, .cursor/commands/opsx-explore.md, .cursor/commands/opsx-propose.md, .cursor/commands/opsx-sync.md, .cursor/commands/opsx-update.md, .cursor/skills/openspec-apply-change/SKILL.md, .cursor/skills/openspec-archive-change/SKILL.md, .cursor/skills/openspec-explore/SKILL.md, .cursor/skills/openspec-propose/SKILL.md, .cursor/skills/openspec-sync-specs/SKILL.md, .cursor/skills/openspec-update-change/SKILL.md, openspec/changes/archive/.gitkeep, openspec/config.yaml, openspec/specs/.gitkeep",
+    "c_headless_flow": "agent exit 0; see the reply tail and the files added",
+    "d_writes_and_stop": "added 4, changed 0, removed 0; code files written: none",
+    "e_telemetry": "the setting was applied to the child's environment (OPENSPEC_TELEMETRY=0, DO_NOT_TRACK=1); its effect was not observed",
+    "f_time_and_calls": "install 4.6 s, version 0.1 s, init 0.6 s, agent 181.2 s; agent calls: 1"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "change_id": "fixture-positive",
+  "class": "T2",
+  "falsification": "A required fixture check fails.",
+  "jurisdiction": "This evidence covers falsifiable correctness only and makes no design or risk claim.",
+  "e0": {"status": "passed", "artifact": "fixture build output"},
+  "e1": {"status": "passed", "artifact": "fixture static output"},
+  "e2": {"status": "passed", "artifact": "fixture suite output", "coverage_boundary": "fixture parser only"},
+  "e3": {
+    "status": "satisfied",
+    "mechanism": "reversion test",
+    "artifact": "negative fixture fails",
+    "counterfactual": "Removing validation makes the negative fixture pass."
+  },
+  "e4": [{"criterion": "AC1", "check": "fixture unit test", "status": "passed", "artifact": "fixture test result"}],
+  "e5": "Malformed and boundary fixture inputs are rejected.",
+  "e6": "No external contract or invariant changes.",
+  "residual_risk": "The fixture does not represent every consuming repository."
+}

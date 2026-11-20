@@ -1,0 +1,17 @@
+{
+  "max_autonomous_class": "T0",
+  "remediation_scope": "mechanical_only",
+  "max_ci_retries": 1,
+  "checkpoint_actions": ["commit", "push", "merge_request_create", "merge"],
+  "notification_actions": [
+    "branch_create",
+    "commit",
+    "push",
+    "merge_request_create",
+    "ci_retry",
+    "review_invoke",
+    "remediation_apply",
+    "merge"
+  ],
+  "auto_merge_max_class": "none"
+}

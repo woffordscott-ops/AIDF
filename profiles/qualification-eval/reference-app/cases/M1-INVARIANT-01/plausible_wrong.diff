@@ -1,0 +1,20 @@
+--- a/app/tickets/__init__.py
++++ b/app/tickets/__init__.py
+@@ -37,10 +37,13 @@
+ def get_ticket(db, principal, ticket_id):
+     permissions.require(principal, "ticket.read")
+     ticket_id = validate.db_id(ticket_id, "ticket_id")
+-    row = db.execute(
+-        "SELECT * FROM tickets WHERE id = ? AND tenant_id = ?",
+-        (ticket_id, principal.tenant_id),
+-    ).fetchone()
++    if principal.role in ("admin", "owner"):
++        row = db.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
++    else:
++        row = db.execute(
++            "SELECT * FROM tickets WHERE id = ? AND tenant_id = ?",
++            (ticket_id, principal.tenant_id),
++        ).fetchone()
+     if row is None:
+         raise NotFound("ticket not found")
+     return _row(row)

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "change_id": "spec-mapper",
+  "class": "T2",
+  "spec_confidence": "Clear",
+  "intended_outcome": "A team can turn its OpenSpec, Spec Kit, Kiro-style or custom planning folder into a draft Task Contract with one command and a mapping file, the draft claims only what the source says, and the tool cannot be made to read or write outside the named folders.",
+  "acceptance_criteria": [
+    {
+      "id": "AC1",
+      "text": "The schema. A mapping is accepted only if it has exactly the keys named in Technical details with the right types; any other mapping is refused with exit code 2 and a message naming the key."
+    },
+    {
+      "id": "AC2",
+      "text": "The operations. `file`, `section`, `blocks` and `checklist` each return exactly the text a test fixture shows, in the order of the source, with the source file named for each passage."
+    },
+    {
+      "id": "AC3",
+      "text": "The built-in mappings. For the real OpenSpec and Spec Kit outputs of the reading test, the draft equals the committed expected draft byte for byte; for the synthetic Kiro-style folder and a markdown-sections example likewise."
+    },
+    {
+      "id": "AC4",
+      "text": "The draft. Every part the source supplies is copied with its source file named; every other part is `TODO(author)` or `TODO(AIDF)`; the Status block is `Established` with no approver; no class is chosen; the header says how many parts were copied and how many remain; the approver's opening is filled only where the source supplies it."
+    },
+    {
+      "id": "AC5",
+      "text": "Untrusted input. The tool follows no symbolic link or junction, reads no file above a size limit, reads only files a rule names and that lie inside the input folder, refuses an output path inside the input folder or an existing output file without `--force`, executes nothing, uses no network, and refuses a hostile fixture (a link, an oversized file, a rule or glob that leaves the folder, a malformed mapping)."
+    },
+    {
+      "id": "AC6",
+      "text": "Determinism. The same input and mapping give the same bytes, on any file-system order."
+    },
+    {
+      "id": "AC7",
+      "text": "The guide. `instantiation/spec-tools.md` gains a short section on drafting with the mapper, with the exact command, and says what the draft is not (an approval, a classification, evidence)."
+    },
+    {
+      "id": "AC8",
+      "text": "Tests. `verification/tests/test_spec_mapper.py` asserts each criterion; each test fails when the code it names is broken (mutations recorded in the pack)."
+    },
+    {
+      "id": "AC9",
+      "text": "Scope. No change to `core/`, `KERNEL.md`, `templates/`, the preflight, `verification/run_review.py` or the export tool; the new files are covered by the public export without a change to its manifest, or the dispositions say which entries the cut needs."
+    },
+    {
+      "id": "AC10",
+      "text": "Outcome records (core/05-review.md section 6): the review report patterns are `verification/spec-mapper-verifier-report*.md`; the dispositions file is `verification/spec-mapper-verifier-dispositions.md`. This criterion only declares the outcome-record paths."
+    }
+  ],
+  "declared_scope": [
+    "verification/spec_mapper.py",
+    "instantiation/mappings/**",
+    "verification/tests/test_spec_mapper.py",
+    "verification/spec-mapper-fixtures/**",
+    "instantiation/spec-tools.md",
+    "verification/tests/test_spec_tools_guide.py",
+    "CHANGELOG.md",
+    "spec/AIDF-SPEC-MAPPER-STAGES-0-1-TASK-CONTRACT.md",
+    "verification/spec-mapper-task-contract.json",
+    "verification/spec-mapper-evidence-pack.json",
+    "verification/spec-mapper-verifier-dispositions.md",
+    "verification/spec-mapper-verifier-report*.md",
+    "strategy/AIDF-SPEC-MAPPER-PROPOSAL.md"
+  ],
+  "tripwires": [],
+  "dependency_changes": [],
+  "approved_by": "Scott Wofford, Change Owner and Architect",
+  "approved_date": "2026-11-06"
+}

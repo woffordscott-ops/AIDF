@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "change_id": "review-efficiency-core",
+  "class": "T2",
+  "spec_confidence": "Clear",
+  "intended_outcome": "Cut review rounds that add no assurance and make the human cost measurable, without lowering any control on code, tests or security posture: a declared review budget with a recorded stop menu, advisory record-text findings, verified pack facts and request and answer timestamps.",
+  "acceptance_criteria": [
+    {
+      "id": "AC1",
+      "text": "Stop rule: core/05-review.md sections 2 and 5 and templates/task-contract.md define a declared review budget (T2 default two Verifier rounds; T3 two Verifier and two Security) and, when the last budgeted round does not pass, a recorded Change Owner choice of merge with advisories, accept a named residual, split, stop, or one more round (only for a rank-1 finding in code, tests or security posture). A T3 residual may be accepted as named and scoped; this never waives required evidence and never accepts a rank-1 behavior defect with a reproducing case. A contract without a budget keeps the two-round maximum."
+    },
+    {
+      "id": "AC2",
+      "text": "Record text cannot block: core/05-review.md section 4 makes a finding whose only subject is narrative, a count or history in an evidence pack or dispositions file advisory, fixed by an append; it still blocks when it overstates a guarantee a consumer relies on, a required artifact, rehearsal or acceptance is missing, a gate-used SHA, digest or hash is wrong, or the record contradicts the code or tests it describes."
+    },
+    {
+      "id": "AC3",
+      "text": "Pack facts: verification/pack_facts.py fails when a security_evidence artifact that names a committed file (alone or as its first word) has a wrong artifact_sha256 or when an artifact that looks like a file names no committed file, when a cited hexadecimal string of 7 to 40 characters does not resolve to a git object, or when a cited test_ name is not defined in a tracked Python file; templates/evidence-pack.md says reviewers do not argue these three facts."
+    },
+    {
+      "id": "AC4",
+      "text": "Human time: templates/approval-request.md has Requested (UTC), Answered (UTC) and Active minutes (manual); metrics/definitions.md defines the metric as an upper bound with the manual field beside it; verification/human_time.py prints the request count, the upper bound and the manual sum, counting incomplete requests as unknown."
+    },
+    {
+      "id": "AC5",
+      "text": "Protected checker unchanged: verification/aidf_check.py is attested by the protected policy repository and is not changed by this change (git diff of the merge base with main against HEAD for that path is empty). The pending-criterion status (pending_outcome, --final, outcome_record_criteria) is deferred to a later cross-repository T3 change."
+    },
+    {
+      "id": "AC6",
+      "text": "Tests and replay: each rule has a counterfactual test that fails against the previous text or code; verification/review_rule_replay.py reports, on the hand-labelled findings, how many reports contained only record text; CHANGELOG.md records the change as migration-required for contracts that adopt a budget; spec/adr/review-stop-rule.md records the decision."
+    },
+    {
+      "id": "AC7",
+      "text": "Scope: no change to KERNEL.md, the trip-wires, core/02-authority.md, verification/aidf_check.py, or any section of core/05-review.md other than 2, 4 and 5."
+    },
+    {
+      "id": "AC8",
+      "text": "Outcome records (core/05-review.md section 6): the review report patterns are verification/review-efficiency-core-verifier-report*.md; the dispositions file is verification/review-efficiency-core-verifier-dispositions.md. This criterion only declares the outcome-record paths. The merger runs verification/review_head_binding_evidence.py compare() from the reviewed head of the last round to the final head and records its output in the dispositions; the evidence pack does not change after the last review."
+    }
+  ],
+  "declared_scope": [
+    "core/05-review.md",
+    "templates/task-contract.md",
+    "templates/evidence-pack.md",
+    "templates/approval-request.md",
+    "metrics/definitions.md",
+    "verification/pack_facts.py",
+    "verification/human_time.py",
+    "verification/review_rule_replay.py",
+    "verification/tests/test_human_time.py",
+    "verification/tests/test_review_efficiency_core.py",
+    "verification/tests/test_review_rule_replay.py",
+    "CHANGELOG.md",
+    "spec/AIDF-REVIEW-EFFICIENCY-CORE-TASK-CONTRACT.md",
+    "spec/adr/review-stop-rule.md",
+    "verification/review-efficiency-core-task-contract.json",
+    "verification/review-efficiency-core-evidence-pack.json",
+    "verification/review-efficiency-core-verifier-dispositions.md",
+    "verification/review-efficiency-core-verifier-report.md",
+    "verification/review-efficiency-core-verifier-report-round2.md",
+    "verification/review-efficiency-core-verifier-report-round3.md",
+    "verification/review-efficiency-core-verifier-report-round4.md",
+    "verification/review-efficiency-core-verifier-report-round5.md"
+  ],
+  "tripwires": [],
+  "approved_by": "Scott Wofford, Change Owner and Architect",
+  "approved_date": "2026-10-30",
+  "dependency_changes": []
+}

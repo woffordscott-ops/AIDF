@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "record_type": "change_observation",
+  "change_id": "phase9-ci-policy-security-r1",
+  "project": "ProjectGenome/aidf-ci-policy",
+  "final_class": "T3",
+  "source": {
+    "merge_request": "!57",
+    "base_sha": "e90c475aae82c7aa802eca2da2cdbf431fb8d479",
+    "head_sha": "975e51e1dca819477915ce626127fa22127deffb",
+    "merge_commit_sha": "24597ae1f55515632b9de0ef1f9903d278b6d489",
+    "protected_pipeline_ids": ["1157", "1163"]
+  },
+  "collector": "Claude Sonnet 5 (Anthropic), orchestrating session",
+  "collected_at_utc": "2026-10-04T00:00:00Z",
+  "population": {
+    "included": "The Security Reviewer pass over aidf-ci-policy MR !57 (base e90c475, head 975e51e), role 'Security Reviewer, /root/phase9_policy_security_r1', a Codex collaboration subagent distinct from the Implementer and the coordinator Verifier (.phase9-review/ci-policy-security-r1/report.md). 2 findings raised: SR1-F1 (High, Blocking, missing companion T3 prerequisites) and SR1-F2 (Informational, advisory, activation/replay coverage, 'no requested source revision' per the report's own disposition). Per metrics/definitions.md's review_finding_precision definition ('Confirmed blocking findings divided by blocking findings raised'), only SR1-F1 is in scope for that ratio -- SR1-F2 is informational, not blocking, and is excluded from the ratio entirely, not credited as a second data point.",
+    "excluded": "Every other Verifier/Security review this session (round-1/round-2 agent-routing reviews, phase9-ci-gate-integration's two Verifier rounds and distinct Security Reviewer pass, the transition430/mr23-final-binding review pairs, etc.) is a separate population, reported separately by design, not blended into this ratio. This record covers exactly one review pass."
+  },
+  "metrics": {
+    "human_minutes_per_merged_change": {
+      "status": "unavailable",
+      "reason": "Scott Wofford's active read/decide/authorize time was not instrumented in real time for this change."
+    },
+    "rework_rate": {
+      "status": "not_applicable",
+      "reason": "This record observes one review pass's finding precision, not a code change's revision count; rework for the underlying diff is reported in the companion phase9-ci-policy-transition evidence pack, not here, per the population contract."
+    },
+    "change_failure_rate": {
+      "status": "not_applicable",
+      "reason": "This record observes review-finding precision for one pass, not post-merge operational failure of the governed change."
+    },
+    "escaped_defect_rate_by_class": {
+      "status": "not_applicable",
+      "reason": "Both findings in this population were caught by this review before merge; zero escaped undetected, but that is a pre-merge review outcome, not a post-merge escape rate -- the two are not conflated here."
+    },
+    "cost_per_merged_change": {
+      "status": "unavailable",
+      "reason": "Model/tool API spend and CI compute attributable to this specific review pass were not captured."
+    },
+    "classification_calibration": {
+      "status": "not_applicable",
+      "reason": "No escalation or de-escalation event occurred for this change's own classification; it was T3 at review and remained T3."
+    },
+    "review_finding_precision": {
+      "status": "measured",
+      "value": {
+        "security": {
+          "numerator": 1,
+          "denominator": 1,
+          "model_identifier": "gpt-5.6-sol",
+          "description": "1 confirmed blocking finding / 1 blocking finding raised = 100% (SR1-F1, High, missing companion T3 prerequisites, finally dispositioned CONFIRMED_FIXED for preparation defects -- see basis for the exact binding artifact). SR1-F2 (Informational) is excluded from this ratio -- it was never a blocking finding, per metrics/definitions.md's definition ('Confirmed blocking findings divided by blocking findings raised')."
+        }
+      },
+      "basis": "The report's own findings digest states 'Blocking precision: 0 adjudicated-confirmed / 1 raised, adjudication unknown' -- this describes SR1-F1 itself (the one blocking finding this round raised), still UNRESOLVED/unadjudicated at the time this report was written (2026-10-02), not an earlier round's findings being re-assessed. This record, written 2026-10-04 with the benefit of what actually happened afterward, credits SR1-F1 as CONFIRMED_FIXED, binding that credit directly to its recording artifact: .phase9-review/transition94-security/report.md (Security Reviewer /root/transition430_security, reviewing MR !24's delta to final head 94f0b8406ad377de3c5cdbbdcfb618abc00a6731) states verbatim under Dispositions: 'SR1-F1: CONFIRMED_FIXED for preparation defects, with remaining provenance component closed by Scott's explicit accepted admission.' That disposition itself rests on the companion phase9-ci-policy-transition Task Contract/evidence pack SR1-F1 required having been built and having received its own ordered re-review (see review_disagreement_and_revision_outcomes below) -- the same retrospective-crediting method case-study-zero (metrics/observations/phase8-layer3-git-trust-hardening.json) already used for its own findings. n=1 -- report as insufficient sample per definitions.md's small-samples rule, not as a stable rate; MIN_SPECIALTY_SAMPLE in verification/agent_routing_check.py is 1, so this is the minimum admissible population, not a comfortable one. model_identifier 'gpt-5.6-sol' is recorded here on Scott Wofford's direct confirmation as the human who installed, configured, and selected that exact model for this Codex deployment (2026-10-04) -- the review report itself explicitly disclaims this identity ('Model backend identity unavailable, not inferred'), consistent with every other Codex-authored review report produced this session, none of which self-report backend model identity. This is a human-attested fact recorded as such, not inferred by this record's collector and not claimed by the reviewer's own tooling."
+    },
+    "review_disagreement_and_revision_outcomes": {
+      "status": "measured",
+      "value": {
+        "disagreements": 0,
+        "findings_causing_substantive_revision": 1,
+        "false_positives": 0,
+        "re_review_rounds": 2,
+        "escalations": 0,
+        "review_round_wall_clock_utc": {
+          "ci_policy_security_r1": "2026-10-02T13:38:17Z to 2026-10-02T13:40:42Z (2m25s)"
+        },
+        "time_to_disposition": "unknown -- not separately captured"
+      },
+      "basis": "Only SR1-F1 caused substantive revision (the companion Task Contract/evidence pack it required); SR1-F2's own disposition line states 'no requested source revision' verbatim, so it is not counted as a second revision-causing finding. SR1-F1's own required-resolution text explicitly demanded re-review as a prerequisite ('obtain required ordered, distinct reviews over final SHA with protected provenance... Re-review the missing prerequisites when supplied') -- this was not optional and did occur. re_review_rounds: 2 counts exactly one Verifier pass (/root/transition430_clean_verifier, PASS_WITH_ADVISORIES) plus one Security pass (/root/transition430_security, PASS_WITH_ADVISORIES), both over MR !24 (codex/phase9-ci-policy-transition) at head 43014b1764471d1fe9168acb729b3a257c51dc2b -- the ordered, distinct pair that first confirmed the companion artifacts existed and narrowed SR1-F1 to its protected-provenance component (.phase9-review/transition430-clean-verifier/report.md, .phase9-review/transition430-security/report.md). This pair is distinct from both (a) the single SR1 review pass this record's own population is about, and (b) the later confirmatory pass (same Security Reviewer instance, reviewing the further delta to final head 94f0b8406ad377de3c5cdbbdcfb618abc00a6731) that actually delivered SR1-F1's CONFIRMED_FIXED disposition after Scott Wofford's explicit acceptance (.phase9-review/transition94-security/report.md, cited directly in review_finding_precision's basis above) -- not double-counted here as a third re-review round, since it confirms activation documentation rather than re-reviewing the companion artifacts themselves. Broader review activity elsewhere in this session (MR23's own rounds, the original agent-routing rounds) is a separate population per the population contract above and is not folded into this count. No disagreement between reviewer and Implementer was recorded. Wall-clock span for this round taken verbatim from its own Started/Completed UTC fields; the re-review rounds' own wall-clock spans are recorded in their own review report files cited above, not in a metrics/observations/ record -- no such record exists for them, and an earlier draft of this basis wrongly implied one did."
+    }
+  },
+  "notes": "First populated record attributing a review-finding-precision figure to the gpt-5.6-sol model identity, enabling verification/agent_routing_check.py's specialty mechanism to issue its first honest profiles/specialty/*.json record (profiles/specialty/phase8-codex-gpt-5-6-sol-security-review.json) -- see that file and profiles/README.md's 'Specialty dimension and automatic routing' section for the mechanism this record feeds. The model_identifier attribution method (human operator confirmation, recorded as such) is itself new as of this record; prior case-study-zero (metrics/observations/phase8-layer3-git-trust-hardening.json) recorded model_identifier from the collector's own session identity, which was directly knowable there and is not directly knowable here from Codex's own tooling. collected_at_utc (2026-10-04T00:00:00Z) is an approximate, date-only stamp for when this record was authored -- the actual authoring moment's precise wall-clock time was not separately captured and is not invented here; the same applies to profiles/specialty/phase8-codex-gpt-5-6-sol-security-review.json's qualified_at field. This is distinct from, and does not affect precision of, the cited reviews' own exact Started/Completed UTC timestamps, which are quoted verbatim from their source reports."
+}

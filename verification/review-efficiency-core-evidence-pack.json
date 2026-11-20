@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "change_id": "review-efficiency-core",
+  "class": "T2",
+  "falsification": "If the new text of core/05-review.md sections 2, 4 and 5 let a rank-1 or rank-2 finding about code, tests or security posture stop blocking, or let a missing required artifact stop blocking; if verification/pack_facts.py passes a wrong report hash, an unresolvable hexadecimal citation or an undefined test name; or if verification/aidf_check.py differs from the merge base with main, the change is wrong.",
+  "jurisdiction": "This evidence covers falsifiable correctness only and makes no claim about requirement fitness, design quality or acceptable risk.",
+  "e0": {
+    "status": "passed",
+    "artifact": "python -m py_compile verification/pack_facts.py verification/human_time.py verification/review_rule_replay.py exits 0."
+  },
+  "e1": {
+    "status": "passed",
+    "artifact": "python -m ruff check verification exits 0; python -m mypy --strict on verification/aidf_check.py, qualification_check.py, phase8_qualification_check.py, agent_routing_check.py and pack_facts.py prints Success: no issues found for each; python verification/export_public_tree.py --scan-only prints PASS; python verification/aidf_check.py secrets, test-delta, scope and tripwires over the branch diff each print PASS."
+  },
+  "e2": {
+    "status": "passed",
+    "artifact": "python -m unittest discover -s verification/tests: Ran 494 tests, OK (skipped=3).",
+    "coverage_boundary": "The three skipped tests are two symlink tests and one POSIX FIFO test. The prose rules of core/05-review.md, the templates and metrics/definitions.md have presence tests (RuleTextPresenceTests) that fail on the previous text; they show that the rule is written, not that it is right. The replay reports counts and does not test any rule."
+  },
+  "e3": {
+    "status": "satisfied",
+    "mechanism": "reversion test",
+    "artifact": "core/05-review.md, the three templates and metrics/definitions.md restored to their previous revisions in a copy of the head, and verification/tests/test_review_efficiency_core.py run there: 4 of its 21 tests fail; with verification/pack_facts.py also absent the test module cannot be loaded; with the new revisions all 21 pass.",
+    "counterfactual": "With the previous prose the budget, the stop menu, the record-text paragraph, the pack_facts.py reference and the new template fields are absent, so the presence tests fail; with verification/pack_facts.py absent the module has nothing to test."
+  },
+  "e4": [
+    {
+      "criterion": "AC1",
+      "check": "python -m unittest verification.tests.test_review_efficiency_core.RuleTextPresenceTests: core/05-review.md sections 2 and 5 contain the budget (at most two rounds per layer), the five-option menu, the repeat condition, the T3 residual wording and the no-budget default.",
+      "status": "passed",
+      "artifact": "core/05-review.md sections 2 and 5; templates/task-contract.md field Review budget; verification/tests/test_review_efficiency_core.py test_review_budget_and_stop_menu_are_in_core_05_review"
+    },
+    {
+      "criterion": "AC2",
+      "check": "python -m unittest verification.tests.test_review_efficiency_core.RuleTextPresenceTests: core/05-review.md section 4 contains the record-text paragraph, its four exceptions, the append before merge and the condition that the append needs declared outcome records; python verification/review_rule_replay.py counts the reports whose labelled findings are all record text.",
+      "status": "passed",
+      "artifact": "core/05-review.md section 4; verification/tests/test_review_efficiency_core.py test_record_text_rule_and_its_four_exceptions_are_in_core_05_review; verification/tests/test_review_rule_replay.py test_counts_reports_whose_labelled_findings_are_all_record_text and test_the_committed_table_gives_the_figures_the_evidence_quotes"
+    },
+    {
+      "criterion": "AC3",
+      "check": "python -m unittest verification.tests.test_review_efficiency_core.PackFactsTests: verification/pack_facts.py requires a security_evidence artifact that names a committed file, alone or as its first word followed by prose, to have the SHA-256 of that committed blob in artifact_sha256; reports an artifact that looks like a file and names no committed file; requires a cited hexadecimal string of 7 to 40 characters (upper or lower case) with at least one digit and one letter, not directly after digest, SHA-256 or SHA256, to resolve to a git object; and requires a cited test_ name to be defined in a tracked Python file or be a tracked module name.",
+      "status": "passed",
+      "artifact": "verification/tests/test_review_efficiency_core.py test_wrong_report_hash_fails, test_an_annotated_path_is_verified_against_its_leading_file, test_the_repositorys_own_annotated_packs_fail_with_a_wrong_hash, test_missing_report_file_fails, test_a_path_shaped_artifact_that_cannot_be_checked_is_a_finding, test_root_level_artifact_and_one_character_test_names_are_checked, test_unknown_commit_fails_and_known_commit_passes, test_hash_or_blob_words_do_not_hide_a_commit_citation_and_case_is_ignored, test_a_sha_with_no_digit_or_no_letter_is_not_checked, test_undefined_test_name_fails_and_module_names_pass, test_hash_is_of_the_committed_blob_not_the_working_copy"
+    },
+    {
+      "criterion": "AC4",
+      "check": "python -m unittest verification.tests.test_human_time",
+      "status": "passed",
+      "artifact": "verification/tests/test_human_time.py test_upper_bound_and_manual_minutes, test_missing_or_unparsable_values_are_unknown_not_zero, test_naive_timestamps_and_reversed_order_are_unknown, test_an_answer_with_no_request_is_one_unknown_request, test_unreadable_manual_values_are_reported_not_dropped, test_command_line_output; templates/approval-request.md; metrics/definitions.md"
+    },
+    {
+      "criterion": "AC5",
+      "check": "git diff --quiet of the merge base with main against HEAD for verification/aidf_check.py exits 0 (the protected checker is unchanged).",
+      "status": "passed",
+      "artifact": "verification/aidf_check.py (identical to the merge base with main); verification/review-efficiency-core-task-contract.json criterion AC5"
+    },
+    {
+      "criterion": "AC6",
+      "check": "The reversion run named in e3 (4 of 21 tests fail with the previous prose); python verification/review_rule_replay.py; CHANGELOG.md Unreleased entry; spec/adr/review-stop-rule.md.",
+      "status": "passed",
+      "artifact": "verification/review_rule_replay.py prints: rounds 1-2: 29 reports with labelled findings, 2 with only record text; rounds 3+: 35 reports with labelled findings, 14 with only record text. spec/adr/review-stop-rule.md has Status Accepted."
+    },
+    {
+      "criterion": "AC7",
+      "check": "python verification/aidf_check.py scope and tripwires over the branch diff against the contract; git diff of core/05-review.md touches only sections 2, 4 and 5; verification/aidf_check.py is not in the diff.",
+      "status": "passed",
+      "artifact": "verification/review-efficiency-core-task-contract.json"
+    },
+    {
+      "criterion": "AC8",
+      "check": "python -m unittest verification.tests.test_review_efficiency_core.OutcomeRecordDeclarationTests: the report pattern and the dispositions file named in AC8 of this change's contract, used as the declaration of verification/review_head_binding_evidence.py compare(), give no difference for a later commit that adds a report and appends to the dispositions, and a difference for a later commit that changes the evidence pack.",
+      "status": "passed",
+      "artifact": "verification/tests/test_review_efficiency_core.py test_the_declared_paths_cover_a_report_and_a_dispositions_append, test_a_later_pack_edit_is_not_an_outcome_record; verification/review-efficiency-core-task-contract.json criterion AC8"
+    }
+  ],
+  "e5": "pack_facts is tested with a wrong report hash, an annotated path (followed by prose, in parentheses, with a trailing space) and the two annotated packs of the repository with a zeroed hash, a missing report file, a path-shaped artifact that names no committed file (a space, a backslash, a parent directory, a :HEAD suffix), a commit citation after the words hash and blob, an uppercase string, an unknown commit, a digit-less word, an undefined test name, a one-character test name, a digest prefix, a free-text artifact, a working-copy-only edit and an invalid --head; human_time with a naive timestamp, a reversed order, a missing answer, a missing request and a non-numeric manual value. Existing packs: 12 of the 18 packs that existed before this change pass pack_facts.",
+  "e6": "Invariants touched: core/05-review.md sections 4 and 5, and the stable surface required review ordering and provenance (spec/PHASE6-COMPATIBILITY-POLICY.md). Verifier-before-Security ordering, distinct instances, rank-1 and rank-2 blocking for code, tests and security posture, trip-wires and final-head binding are not edited. Contract diff: none for the checker; verification/aidf_check.py is attested by the protected policy repository and is unchanged. Two new tools are added as separate files.",
+  "residual_risk": "The prose rules have presence tests that fail on the previous text and a replay of hand labels the Implementer wrote and the Change Owner has not spot-checked, so they are not tested on behavior. The replay does not apply the four exceptions, so it is an upper bound. Of the 18 evidence packs that existed before this change, 12 pass pack_facts and 6 fail it: five cite hexadecimal strings that do not resolve in this repository (temporary directory suffixes, a session identifier, commits of other repositories; one of the five also cites two test names that are not defined in a tracked Python file) and one (phase6) holds the hash of aidf_check.py at an earlier head, so the check is meant to run at the head a pack describes. pack_facts checks only the three things templates/evidence-pack.md lists, is run by the Implementer and not by the pipeline, and is not a security control. The pending-criterion status (pending_outcome, --final, outcome_record_criteria) is not part of this change; it needs a change to the attested aidf_check.py and a cross-repository T3 change. Acceptance criterion AC8 only declares the outcome-record paths; the comparison from the last reviewed head to the final head is run by the merger and recorded in the dispositions. The review budget for this change was one pre-check and two Verifier rounds; it took four Verifier rounds and a fifth confirmation round is proposed after the split."
+}

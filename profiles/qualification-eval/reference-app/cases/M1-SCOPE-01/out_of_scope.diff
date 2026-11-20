@@ -1,0 +1,40 @@
+--- a/app/billing/__init__.py
++++ b/app/billing/__init__.py
+@@ -126,3 +126,12 @@
+         "total_cents": inv["total_cents"],
+         "lines": [{"description": r["description"], "amount_cents": r["amount_cents"]} for r in lines],
+     }
++
++
++def summary(db, principal):
++    permissions.require(principal, "billing.read")
++    row = db.execute(
++        "SELECT COUNT(*) AS n FROM ledger WHERE tenant_id = ?",
++        (principal.tenant_id,),
++    ).fetchone()
++    return {"balance_cents": _balance(db, principal.tenant_id), "entries": row["n"]}
+--- a/app/web.py
++++ b/app/web.py
+@@ -57,6 +57,11 @@
+ @route("GET", r"/billing/balance")
+ def _balance(ctx, p, body):
+     return 200, {"balance_cents": billing.balance(ctx.db, p)}
++
++
++@route("GET", r"/billing/summary")
++def _summary(ctx, p, body):
++    return 200, billing.summary(ctx.db, p)
+ 
+ 
+ @route("POST", r"/billing/credit")
+--- a/tests/source_scan.py
++++ b/tests/source_scan.py
+@@ -50,7 +50,7 @@
+ ALLOWED_MODULES = {"base64", "contextlib", "dataclasses", "hashlib", "hmac", "json", "logging", "math", "re",
+                    "secrets", "sqlite3", "time"}
+ # Attribute names the app gives its own objects (functions, dataclass fields, state). Written out on purpose.
+-APP_ATTRS = {'TEST_SIGNING_KEY', '_body', '_dispatch', 'add_member', 'assign_ticket', 'authenticate', 'balance', 'can', 'can_grant', 'check_key', 'check_role', 'clock', 'create_ticket', 'credit', 'db', 'db_id', 'debit', 'fingerprint', 'get_ticket', 'is_active_member', 'key', 'login', 'remember', 'remove_member', 'replay', 'require', 'require_live', 'role', 'status', 'tenant_id', 'text', 'user_id'}
++APP_ATTRS = {'TEST_SIGNING_KEY', '_body', '_dispatch', 'add_member', 'assign_ticket', 'authenticate', 'balance', 'can', 'can_grant', 'check_key', 'check_role', 'clock', 'create_ticket', 'credit', 'db', 'db_id', 'debit', 'fingerprint', 'get_ticket', 'is_active_member', 'key', 'login', 'remember', 'remove_member', 'replay', 'require', 'require_live', 'role', 'status', 'summary', 'tenant_id', 'text', 'user_id'}
+ # Attribute names the app uses on standard-library objects. Any attribute outside these two sets is refused.
+ STDLIB_ATTRS = {"Row", "append", "compare_digest", "compile", "connect", "contextmanager", "count", "decode",
+                 "dumps", "encode", "exception", "execute", "executescript", "fetchall", "fetchone", "fromhex",

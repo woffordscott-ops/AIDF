@@ -1,0 +1,5 @@
+diff --git a/src/service.py b/src/service.py
+--- a/src/service.py
++++ b/src/service.py
+@@ -1,0 +1 @@
++VALUE = "public-example"

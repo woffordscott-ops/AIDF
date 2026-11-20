@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "project_id": "group/project",
+  "risk_threshold": {
+    "type": "preset",
+    "preset": "conservative"
+  },
+  "human_involvement": {
+    "type": "preset",
+    "preset": "guided"
+  },
+  "task_override_policy": "tighten_only",
+  "authorization": {
+    "grantor": "Human name",
+    "recorded_roles": [
+      "Change Owner",
+      "Architect"
+    ],
+    "approval_reference": "Immutable approval or decision record",
+    "granted_on": "2026-08-30",
+    "expires_on": "2026-11-30",
+    "status": "active"
+  }
+}

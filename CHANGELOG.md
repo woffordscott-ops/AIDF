@@ -1,0 +1,93 @@
+---
+owner: framework-maintainer
+load_when: evaluating framework changes, upgrades, or compatibility
+max_length: chronological release ledger
+last_verified: 2026-10-06
+---
+
+# Changelog
+
+## Unreleased
+
+### Added
+
+- `verification/spec_mapper.py`, `instantiation/mappings/` (four mappings: `openspec`, `speckit`, `kiro-synthetic`, `markdown-sections`), `verification/spec-mapper-fixtures/`, `verification/tests/test_spec_mapper.py`, `instantiation/spec-tools.md` (section 8), `verification/tests/test_spec_tools_guide.py`: a draft generator for Task Contracts (Task Contract `spec/AIDF-SPEC-MAPPER-STAGES-0-1-TASK-CONTRACT.md`, T2, stages 0 and 1 of `strategy/AIDF-SPEC-MAPPER-PROPOSAL.md`). `python verification/spec_mapper.py --mapping <name or file> --input <folder> --out <draft.md>` copies what an OpenSpec, Spec Kit, Kiro-style or custom planning folder says into a draft with `TODO` markers for every other part; a format is a mapping file with a closed schema. The draft is never Approved and never classified. The folder is read as untrusted data (no link followed, size limit, only the files a rule names, no execution, no network). Additive: a new tool; the guide's two sentences that said no tool reads a tool's files or offers a converter now point to section 8. Nothing is pushed by this change.
+- `verification/tests/test_qualification_check.py`, `verification/tests/test_aidf_check.py`, `verification/tests/test_reference_suite_v2.py`, `verification/public-export-manifest.json`, `verification/tests/test_export_public_tree.py`: three test files return to the public export (Task Contract `spec/AIDF-RESTORE-EXCLUDED-TESTS-TASK-CONTRACT.md`, T2). Each test that reads a file the public copy does not hold (the pilot's qualification suite and its unqualified records, one gate-checker fixture, the two v1 suites) skips when the file is absent, with a reason that names it; the other tests run. A test in the private tree asserts that every file a guard waits for exists, so a guard cannot hide a failure there. Classified `compatible` under `spec/PHASE6-COMPATIBILITY-POLICY.md`: tests and a publication list only, no stable surface changes. Nothing is pushed by this change.
+- `spec/PHASE6-COMPATIBILITY-POLICY.md`, `verification/public-export-manifest.json`, `verification/tests/test_export_public_tree.py`: the compatibility policy returns to the public export (Task Contract `spec/AIDF-COMPAT-POLICY-CLAUSE-TASK-CONTRACT.md`, T2). One phrase in the sentence that says what is outside the compatibility promise named the pilot project; it now reads "the product contract of any project that consumes the framework", and the sentence means the same. The manifest no longer leaves the file out, and the export test pins that it is published and carries no scan pattern. Classified `compatible` under the policy itself: wording only, no stable surface changes. Nothing is pushed by this change.
+- `verification/public-export-manifest.json`, `verification/tests/test_export_public_tree.py`, `README.md`, `profiles/README.md`, `IMPLEMENTATION-STATUS.md`: the internal project name is kept out of the public export (Task Contract `spec/AIDF-PUBLIC-EXPORT-INTERNAL-NAME-TASK-CONTRACT.md`, T3). A third scan pattern makes the export fail if the name is in any published file name or content. The pilot's example profiles, its two earlier suites, the specifications, fixture and checker that carry the name, and the tests that read them (the qualification, gate-checker, reference-suite and agent-routing tests) are left out of the published copy; no file of the private tree is rewritten. Three published sentences say the pilot's profiles are not in a published copy.
+
+- `verification/public-export-manifest.json`, `verification/tests/test_export_public_tree.py`, `README.md`, `profiles/README.md`: a customer cut of the public export (Task Contract `spec/AIDF-PUBLIC-EXPORT-CUSTOMER-CUT-TASK-CONTRACT.md`). The manifest leaves out the framework's own measurement runs, the records of its latest changes, the historical reports and packs that no test of the public tree reads, and three tests whose inputs are among them, so the exported tree is about 360 files instead of about 3,000 and its own suite still passes; the exporter's code and its identifier scan are unchanged. `README.md` no longer states a test count, and `README.md` and `profiles/README.md` say how to read the public reference suite in a published copy whose history does not contain the pinned revision. A maintainer's runbook for publishing is in `strategy/`.
+- `instantiation/spec-tools.md`, `instantiation/set-up-aidf.md`, `instantiation/starter/`, `instantiation/README.md` (one line), `verification/tests/test_spec_tools_guide.py`: a guide for teams that already use OpenSpec or Spec Kit (Task Contract `spec/AIDF-SPEC-TOOLS-INTEROP-GUIDE-TASK-CONTRACT.md`). It maps what a tool's planning files can feed into a Task Contract (supplied 2, partly 4, AIDF-only 12 of 18 fields), puts the human approval before the tool's apply step, states the safety facts the bake-off recorded (agent instruction files that `run_review.py` treats as steering paths, Spec Kit scripts that can create git branches, init behaviour, telemetry, no pin command) and says what was tested (one run per tool) and what is not promised. No converter, no change to `core/`.
+- `verification/workspace_snapshot.py`, `verification/spec_tool_probe.py`, `strategy/AIDF-SPEC-TOOL-BAKEOFF-STAGE0.md`, `verification/spec-tool-bakeoff/`: stages 0 and 1 of the spec-tool bake-off (Task Contract `spec/AIDF-SPEC-TOOL-BAKEOFF-STAGES-0-1-TASK-CONTRACT.md`). A file snapshot and compare tool; a probe that installs a pinned OpenSpec or Spec Kit into a scratch directory and runs a headless agent on a throwaway change; the paper protocols and field mapping; the probe records; and a reading test of three planning approaches. The bake-off was stopped after stage 1 with evidence (`strategy/AIDF-SPEC-TOOL-BAKEOFF-PROPOSAL.md`); no framework gate changes.
+- `templates/task-contract.md`, `core/01-lifecycle.md` (Form row of section 4): an approver's opening for the T2/T3 Task Contract, written first for the human who must approve it: Read this first, Problem, Why it matters, The change (BREAKING changes marked), Technical details, What you need to decide, each with a length limit. Part A and Part B still control and T0/T1 contracts do not change. Task Contract `spec/AIDF-TASK-CONTRACT-OPENING-TASK-CONTRACT.md`; the evidence is a reading test in the spec-tool bake-off records.
+- `verification/run_review.py`, `templates/review-brief.md`: a tool the human runs to pin the head, make a clean clone, run the preflight, start the reviewer CLI with an allowlist environment, keep its answer byte for byte, check its Outcome line and commit the report alone, with a log of the times. It starts nothing on its own and is not a security boundary. Additive.
+- `templates/evidence-pack.md`, `templates/task-contract.md`, `verification/preflight.py`: a rule that a sentence guaranteeing behaviour over an open set names the test that falsifies it or is written as a limit, a checklist item for checks that enumerate, a `pack wording` step in the preflight that prints a note for such sentences without a cited test or command (it only prints and does not fail the run), `--ci-like` to run the unit-test step without user git configuration, local-path fetching or tokens, and a record check that parses the policy job's Python instead of matching text. Additive, except that the preflight's record check now refuses policy scripts it used to accept (a second binding of a record name, a loop that is not at the top level).
+- `verification/preflight.py`, `templates/review-brief.md`, `templates/task-contract.md`: a preflight that runs, in a clean checkout of a committed head, the commands of the jobs checker-fixtures and static-analysis of the protected policy repository's pipeline (read from that repository), the three ordinary governance commands, the contract, evidence, scope and trip-wire checks and the public-tree scan, and reproduces its attestation check so an edit to an attested file is found before review; a Task Contract field for protected files touched and a checklist for a new rule or checker; a review-brief template. Additive; nothing existing changes.
+
+### Changed
+
+- `verification/export_public_tree.py`, `verification/public-export-manifest.json`: the notes file of the public tree no longer lists the files and folders that were left out; it gives a count and the reason for each kind. The export run prints the lists for the maintainer instead. The scan and the exclusion logic are unchanged.
+- `verification/run_review.py`, `templates/review-brief.md`: the tool refuses to start the reviewer when the reviewed head holds a path that can steer it (the locations the installed CLI reads, symbolic links, names with a control character) unless the human passes `--allow-steering-files`, which the log records; the reviewer's ruff, mypy, Python and pytest caches are pointed into `<out>/reviewer-cache`; an answer with an Outcome line anywhere but its last line is not committed (kept as `answer.rejected`, waived only by `--accept-nonconforming`). Stricter than before; nothing it accepted before is accepted less, except a head with such a path and an answer with a second Outcome line. Compatible.
+- `verification/run_review.py`, `templates/review-brief.md`: `--help` and the brief template end with a usage note (a reviewer CLI not on PATH needs `--reviewer-executable` and its full path; the report path must be named by `declared_scope`; `--out` must be new or empty; the tool commits the report alone and never pushes); on Windows the git programs started while the report moves are created in their own process group and console, so a console Ctrl-C or Ctrl-Break is held by the tool and raised after the window and is not delivered to them (a process group alone shields from Ctrl-C only). Classified `compatible`: nothing the tool checks or commits changes, and POSIX behaviour is unchanged. Evidence: `spec/AIDF-RUN-REVIEW-FOLLOWUPS-TASK-CONTRACT.md`.
+- `core/05-review.md` sections 2 and 5, `templates/task-contract.md`, `spec/adr/review-stop-rule.md`: the Change Owner may pre-authorise in the approved Task Contract the decision that follows the two-round cap, for up to two further rounds per layer after the layer's last budgeted round (for a budget of two, four of that layer in all); each pre-authorised round starts only after a round with a rank-1 finding in code, tests or security posture, recorded in the dispositions first. The cap, the default budget and the declared-budget maximum are unchanged. Classified `compatible`: a contract without a pre-authorisation keeps today's rules. Evidence: `spec/AIDF-REVIEW-BUDGET-PREAUTHORISATION-TASK-CONTRACT.md`.
+- `core/05-review.md` sections 2, 4 and 5, `templates/task-contract.md`, `templates/evidence-pack.md`,
+  `templates/approval-request.md`, `metrics/definitions.md`: a Task Contract may declare a review budget of at most two rounds per layer; when the
+  last budgeted round does not pass, the Change Owner chooses from a recorded menu (merge with advisories, accept a named
+  residual, split, stop, one more round for a rank-1 finding in code, tests or security posture); a finding about narrative,
+  a count or history in an evidence pack or dispositions file is advisory unless it overstates a guarantee, a required
+  artifact is missing, a gate-used SHA or digest is wrong, or the record contradicts code or tests; a T3 residual may be
+  accepted as named and scoped; approval requests carry request and answer timestamps. Classified `migration-required`
+  for contracts that adopt a budget; a contract without one keeps the two-round maximum. Evidence:
+  `verification/pack_facts.py`, `verification/human_time.py`,
+  `verification/review_rule_replay.py`, `spec/adr/review-stop-rule.md`.
+
+- `core/05-review.md`: reviewers report complete findings in one pass and list
+  routes tried; enumerating controls (scans, blocklists) must be closed or backed
+  by a runtime property, and a bypass is one finding against the design;
+  confirmation rounds are named as valid re-reviews; a review report and the
+  fields recording a passed review may be committed as the immediate successor of
+  the head they review, bound by a deterministic comparison.
+- `core/05-review.md` section 6 and 7: review-outcome records. A Task Contract may opt in by
+  declaring the outcome-record paths in an acceptance criterion; a review then covers the final head when a deterministic comparison from
+  the reviewed head finds only outcome records (a closed list). Classified `migration-required`: the
+  previous rule remains in force for every contract that does not opt in. Evidence:
+  `verification/review_head_binding_evidence.py`.
+- `templates/review-findings.md`, `templates/evidence-pack.md`, `templates/task-contract.md`: matching fields.
+- `core/05-review.md`, `templates/evidence-pack.md`, `templates/review-findings.md`: evidence-pack hygiene. The pack
+  holds current state only, with no review history and no round labels; every claim names its evidence and a universal word
+  lists its set. After a correction the Implementer sweeps the pack and dispositions for the same subject. An optional
+  pre-check by a separate instance is defined as not a review layer. Record forms for an authorization, a disposition, a
+  correction and a sweep. Classified `compatible` under `spec/PHASE6-COMPATIBILITY-POLICY.md`: no contract, evidence pack,
+  review report or checker result that was valid before is invalid after (criterion HYG-AC5 of
+  `verification/evidence-hygiene-task-contract.json`), and no checker, script or gate is added.
+
+## v1.3.0 — Phase 6 framework revision (integrated; formally closed)
+
+### Added
+
+- Evidence-grounded prerequisite intake, T3 Task Contract, and friction ledger.
+- Compatibility, versioning, migration, deprecation, and immutable-history
+  recovery policy.
+- Metric provenance fields for population, source, denominator, and unknowns.
+
+### Security
+
+- Preserved mandatory credential separation, certificate validation,
+  authorization, exact-SHA provenance, immutable history, bounded input,
+  recovery, and fail-closed controls.
+
+### Evidence boundary
+
+Phase 6 does not establish deployment fitness, 10-Gbit/s performance, IPS
+efficacy, compliance, licensing, or commercial readiness. The implementation
+passed E0–E7, ordered reviews, MR pipeline #614, explicit merge authorization,
+and protected-main pipeline #615 at merge
+`07fec47f1d0fc2af62486cc19b7b6e0ea14463a5`. Closure MR !14 merged without
+squash at `c59da1cc1f8e683962bef0051e6fc324fd607485`, protected-main pipeline
+#620 passed; `v1.3.0` is formally closed. This repository's work since this
+entry (Phase 7 qualification, Phase 8 Layer 3, and the Phase-9-named agent
+routing / CI-gate-integration / CI-policy-transition capability work) is
+additive framework capability and evidence, not a new locked-spec version —
+see `IMPLEMENTATION-STATUS.md` for the current traceability ledger and
+`README.md`'s three-layer table for current status at a glance. No
+`v1.4.0` entry exists because no new version has been proposed or locked.

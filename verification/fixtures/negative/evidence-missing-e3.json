@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "change_id": "fixture-positive",
+  "class": "T2",
+  "falsification": "A required fixture check fails.",
+  "jurisdiction": "This evidence covers falsifiable correctness only.",
+  "e0": {"status": "passed", "artifact": "fixture build output"},
+  "e1": {"status": "passed", "artifact": "fixture static output"},
+  "e2": {"status": "passed", "artifact": "fixture suite output", "coverage_boundary": "fixture parser only"},
+  "e4": [{"criterion": "AC1", "check": "fixture unit test", "status": "passed", "artifact": "fixture test result"}],
+  "e5": "Negative inputs exist.",
+  "e6": "No invariant changes.",
+  "residual_risk": "E3 is absent intentionally."
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "environment_id": "phase7-local-windows",
+  "observed_at": "2026-09-01T18:23:01Z",
+  "operating_system": "Windows",
+  "execution_boundary": "Codex desktop local workspace",
+  "network_access": "not_used",
+  "credential_access": "none",
+  "python_runtime": "bundled Python 3.12.13",
+  "claude_code_exact_version": "unknown",
+  "codex_tool_exact_version": "unknown",
+  "cursor_tool_exact_version": "unknown",
+  "model_backend_identifiers": "unknown",
+  "candidate_identity": null,
+  "limitations": [
+    "No exact candidate tool and backend model version pair was exposed for reproducible qualification.",
+    "No vendor runtime was invoked and no repository content was transferred to a new service.",
+    "The existing hash-pinned static requirements omit the Windows Ruff wheel hash, so Ruff and mypy remain protected-Linux checks."
+  ]
+}

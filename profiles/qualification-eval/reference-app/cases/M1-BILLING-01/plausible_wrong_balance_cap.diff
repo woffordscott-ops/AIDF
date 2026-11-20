@@ -1,0 +1,69 @@
+--- a/app/billing/__init__.py
++++ b/app/billing/__init__.py
+@@ -47,6 +47,30 @@
+         )
+         idempotency.remember(db, principal, key, request_hash, new_balance)
+     return new_balance  # computed under the lock: nothing is read after COMMIT that could fail
++
++
++MAX_USAGE_CREDIT_CENTS = 10**9  # per usage credit; lower than the general per-operation limit
++
++
++def usage_credit(db, principal, amount_cents, idempotency_key):
++    permissions.require(principal, "billing.write")
++    amount = _cents(amount_cents)
++    if amount > MAX_USAGE_CREDIT_CENTS:
++        raise Invalid(f"a usage credit must not exceed {MAX_USAGE_CREDIT_CENTS} cents")
++    key = idempotency.check_key(idempotency_key)
++    request_hash = idempotency.fingerprint("usage_credit", amount_cents=amount)
++    with transaction(db):
++        tenants.require_live(db, principal, "billing.write")
++        saved = idempotency.replay(db, principal, key, request_hash)
++        if saved is not None:
++            return saved  # this exact request was already applied: answer it again, write nothing
++        new_balance = _balance(db, principal.tenant_id) + amount
++        db.execute(
++            "INSERT INTO ledger (tenant_id, kind, amount_cents) VALUES (?, 'usage_credit', ?)",
++            (principal.tenant_id, amount),
++        )
++        idempotency.remember(db, principal, key, request_hash, new_balance)
++    return new_balance
+ 
+ 
+ def debit(db, principal, amount_cents, idempotency_key):
+--- a/app/web.py
++++ b/app/web.py
+@@ -64,6 +64,11 @@
+     return 200, {"balance_cents": billing.credit(ctx.db, p, body.get("amount_cents"), body.get("idempotency_key"))}
+ 
+ 
++@route("POST", r"/billing/usage-credit")
++def _usage_credit(ctx, p, body):
++    return 200, {"balance_cents": billing.usage_credit(ctx.db, p, body.get("amount_cents"), body.get("idempotency_key"))}
++
++
+ @route("POST", r"/billing/debit")
+ def _debit(ctx, p, body):
+     return 200, {"balance_cents": billing.debit(ctx.db, p, body.get("amount_cents"), body.get("idempotency_key"))}
+--- a/tests/source_scan.py
++++ b/tests/source_scan.py
+@@ -50,7 +50,7 @@
+ ALLOWED_MODULES = {"base64", "contextlib", "dataclasses", "hashlib", "hmac", "json", "logging", "math", "re",
+                    "secrets", "sqlite3", "time"}
+ # Attribute names the app gives its own objects (functions, dataclass fields, state). Written out on purpose.
+-APP_ATTRS = {'TEST_SIGNING_KEY', '_body', '_dispatch', 'add_member', 'assign_ticket', 'authenticate', 'balance', 'can', 'can_grant', 'check_key', 'check_role', 'clock', 'create_ticket', 'credit', 'db', 'db_id', 'debit', 'fingerprint', 'get_ticket', 'is_active_member', 'key', 'login', 'remember', 'remove_member', 'replay', 'require', 'require_live', 'role', 'status', 'tenant_id', 'text', 'user_id'}
++APP_ATTRS = {'TEST_SIGNING_KEY', '_body', '_dispatch', 'add_member', 'assign_ticket', 'authenticate', 'balance', 'can', 'can_grant', 'check_key', 'check_role', 'clock', 'create_ticket', 'credit', 'db', 'db_id', 'debit', 'fingerprint', 'get_ticket', 'is_active_member', 'key', 'login', 'remember', 'remove_member', 'replay', 'require', 'require_live', 'role', 'status', 'tenant_id', 'text', 'usage_credit', 'user_id'}
+ # Attribute names the app uses on standard-library objects. Any attribute outside these two sets is refused.
+ STDLIB_ATTRS = {"Row", "append", "compare_digest", "compile", "connect", "contextmanager", "count", "decode",
+                 "dumps", "encode", "exception", "execute", "executescript", "fetchall", "fetchone", "fromhex",
+--- a/tests/test_lock_discipline.py
++++ b/tests/test_lock_discipline.py
+@@ -64,7 +64,7 @@
+ COVERED_MUTATORS = {
+     "tenants.create_tenant", "tenants.add_member", "tenants.remove_member",
+     "tickets.create_ticket", "tickets.assign_ticket",
+-    "billing.credit", "billing.debit", "billing.create_invoice",
++    "billing.credit", "billing.debit", "billing.create_invoice", "billing.usage_credit",
+     "idempotency.remember",
+ }
+ 

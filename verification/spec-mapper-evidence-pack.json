@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "change_id": "spec-mapper",
+  "class": "T2",
+  "falsification": "If a mapping with an unknown key, a missing key, a wrong type or a path that could leave the folder is accepted (test_a_key_that_is_not_in_the_schema_is_refused_by_name, test_each_missing_key_is_refused_by_name, test_wrong_types_and_values_are_refused_by_name, test_a_path_that_could_leave_the_folder_is_refused); if an operation returns other text than its fixture shows (test_section_returns_the_heading_and_everything_below_it_down_to_the_next_heading_of_its_level_or_higher, test_blocks_returns_every_block_that_starts_with_the_prefix_in_document_order, test_checklist_returns_each_checkbox_line_and_nothing_else, test_file_returns_the_whole_text_without_the_outer_blank_lines); if a built-in mapping does not reproduce its expected draft byte for byte (test_each_built_in_mapping_reproduces_its_expected_draft_byte_for_byte); if a draft says Approved, names an approver, chooses a class or copies a line outside a quotation (test_the_draft_claims_only_what_the_source_says, test_text_that_imitates_the_drafts_own_lines_stays_inside_its_quotation); if a link or junction that a rule matches is followed, a file above the size limit, a binary or non-UTF-8 file or an unsafe file name is read, an output inside the input folder or an existing output without --force is written (test_a_symbolic_link_or_junction_that_a_rule_matches_is_refused_and_not_followed, test_a_file_that_is_not_text_or_not_utf8_or_too_large_is_refused, test_a_file_name_with_a_character_outside_the_safe_set_is_refused, test_an_output_inside_the_input_folder_is_refused_and_nothing_is_written, test_an_existing_output_is_refused_without_force_and_left_untouched); if the same input gives different bytes under another file-system order (test_the_same_input_gives_the_same_bytes_whatever_order_the_file_system_lists_files); if the tool imports a module that can run code or reach a network (test_the_tool_imports_only_the_standard_modules_it_needs_and_calls_nothing_that_runs_code); if the guide loses its section or the sentences that say what a draft is not (test_the_guide_has_the_section_with_the_exact_command_and_says_what_a_draft_is_not, test_no_converter_is_offered); if the exported tree's own suite, compile, scan or byte-identity check fails (the dry run recorded in the dispositions: python verification/export_public_tree.py --out <directory> --run-tests); if verification/export_public_tree.py, core/, KERNEL.md, templates/, the preflight or verification/run_review.py differs from the base (git diff).",
+  "jurisdiction": "This evidence covers falsifiable correctness only and makes no claim about requirement fitness, design quality or acceptable risk.",
+  "e0": {
+    "status": "passed",
+    "artifact": "python -m py_compile verification/spec_mapper.py verification/tests/test_spec_mapper.py exits 0."
+  },
+  "e1": {
+    "status": "passed",
+    "artifact": "python -m ruff check verification --no-cache exits 0; python verification/export_public_tree.py --scan-only prints PASS: no private identifier in the public tree; the preflight governance checks and the public-tree scan pass."
+  },
+  "e2": {
+    "status": "passed",
+    "artifact": "python -m unittest discover -s verification/tests: Ran 838 tests, OK (skipped=23), on Windows with Python 3.14, in the private tree (the base ran 783 with 21 skips; this change adds 55 tests and 2 skips, the two tests that need a link to a file, which an account without that right cannot create). python -m unittest verification.tests.test_spec_mapper: Ran 55 tests, OK (skipped=2). The same module was also run over a copy of the fixtures with CRLF line endings (a checkout with autocrlf): 53 tests at the time of the first run, OK. The dry run python verification/export_public_tree.py --out <empty directory outside the repository> --run-tests at the head after the fixes of Verifier rounds 1 and 2 exported 372 committed files, compiled 68 Python files, ran the exported suite (615 tests, OK, skipped=77; the base's export ran 560 with 75 skipped) and passed the scan and the byte-identity check. The manifest of the export is unchanged.",
+    "coverage_boundary": "Covers the mapping schema, the four operations, the four built-in mappings on their fixtures, the draft's form, the refusals listed in the falsification and determinism of the output on Windows. It does not cover a link to a file (the account cannot create one; the detection of a link is tested by a stub of the file-system call), POSIX or macOS runs, any customer's planning format, or a measurement of the effort a draft saves."
+  },
+  "e3": {
+    "status": "satisfied",
+    "mechanism": "mutation testing",
+    "counterfactual": "If a rule of the schema, an operation, a refusal, the quotation of copied lines, the fixed Status values, the sort of file names or the count line were broken with the tests still passing, the evidence would fail; the 69 mutations listed in the artifact did exactly this one at a time and 63 are killed, the other 6 are shown equivalent below.",
+    "artifact": "69 mutations of verification/spec_mapper.py were applied one at a time to a scratch clone and test_spec_mapper run: each check of the schema (unknown key, missing key, version, name, detect, each path rule, each rule key, operation, target, limit, duplicate key, non-finite number, mapping size, a linked mapping file), the link test (a link, a junction, a reparse point), the sort of file names, the case of a match, the size limit's boundary, NUL and non-UTF-8 files, control characters and carriage returns, each operation (section level, fences, prefix, whole-heading match, first match, blocks nesting, checklist text, fences and indent, file trimming), the quotation, the source line, the State, class and approver values, the checklist glue, each output refusal (inside the input, existing file, folder or link, missing folder), the input link, the change id (one file, unsafe name), the file-name check, the detect check, the rule limit, the built-in name rule and the exit code. 63 were killed. The first run killed 54 of 67; the 13 survivors led to six new tests (a linked mapping file, listing order with a reversed listing, case of a match, whole-heading match, prefix match, unsafe folder name, built-in name over a local file); the second run killed 63 of 69. After Verifier round 1 (finding F1) the containment check of the output was rewritten and one more mutation was applied by hand: the removal of the extended-length prefix in plain_path; it is killed by test_an_output_inside_the_input_folder_is_refused_in_every_spelling_of_the_path. After Verifier round 2 (findings B1 and A1) the check also refuses a stream name and a hard-linked output (test_an_output_that_names_a_file_system_stream_is_refused_and_nothing_is_written, test_an_output_that_is_a_hard_link_to_a_planning_file_is_not_replaced_even_with_force). The 6 survivors are equivalent mutants, each shadowed by another check in the code: an absolute path, a backslash and a drive colon in a pattern are all also refused by the segment check; an empty segment is also refused by the segment pattern; the size check before reading is repeated on the bytes read; the count of copied parts equals the number of filled targets because every target is a part."
+  },
+  "e4": [
+    {
+      "criterion": "AC1",
+      "check": "the schema tests (falsification) pass at the head and fail under the schema mutations of e3; each refusal message names the key at fault.",
+      "status": "passed",
+      "artifact": "verification/tests/test_spec_mapper.py"
+    },
+    {
+      "criterion": "AC2",
+      "check": "the operation tests pass and fail under the operation mutations; the rule-limit test shows the order of the source files.",
+      "status": "passed",
+      "artifact": "verification/tests/test_spec_mapper.py"
+    },
+    {
+      "criterion": "AC3",
+      "check": "test_each_built_in_mapping_reproduces_its_expected_draft_byte_for_byte passes for openspec, speckit, kiro-synthetic and markdown-sections; the expected drafts were made by an independent script that does not import the tool (it finds headings by plain string tests), the first run of which differed from the tool in the checklist rule because of a defect in the script, fixed; the two inputs of the reading test are byte-identical to the committed outputs of the reading test (test_the_real_openspec_and_speckit_inputs_are_the_reading_test_outputs, which skips file by file in a published copy).",
+      "status": "passed",
+      "artifact": "verification/spec-mapper-fixtures/"
+    },
+    {
+      "criterion": "AC4",
+      "check": "the draft tests pass: the Status block says Established with no approver, the class is left for AIDF to fill, every copied line is quoted under its source file, the header counts 6 of 17 parts for the markdown-sections fixture, and a source that imitates the draft's own lines stays inside its quotation.",
+      "status": "passed",
+      "artifact": "verification/tests/test_spec_mapper.py"
+    },
+    {
+      "criterion": "AC5",
+      "check": "the hostile-input tests pass: a junction matched by a rule is refused and its target's text is not in the draft; the input folder as a link, a file above the limit (at the limit it is read), a NUL byte, non-UTF-8 text, a backtick in a file or folder name, an output inside the input folder in any spelling of the path (including the Windows extended-length prefix and a different case), an output that names a file-system stream (Windows) or is a hard link to another file, an existing output without --force, an output that is a folder or a link and a missing output folder are all refused with exit code 2 and nothing written; files no rule names are not read (one holds invalid UTF-8); the module's imports are the standard set and it opens a file for writing in one place.",
+      "status": "passed",
+      "artifact": "verification/tests/test_spec_mapper.py"
+    },
+    {
+      "criterion": "AC6",
+      "check": "test_the_same_input_gives_the_same_bytes_whatever_order_the_file_system_lists_files passes with a reversed listing; the draft of each fixture is the same bytes on a second run and on a CRLF copy of the fixtures.",
+      "status": "passed",
+      "artifact": "verification/tests/test_spec_mapper.py"
+    },
+    {
+      "criterion": "AC7",
+      "check": "instantiation/spec-tools.md has the section 8 with the exact command, the four mapping names, and the statements that a draft is not an approval, a classification or evidence (test_the_guide_has_the_section_with_the_exact_command_and_says_what_a_draft_is_not); the guide's own pins pass with the section added (test_spec_tools_guide.py, SECTIONS and test_no_converter_is_offered updated).",
+      "status": "passed",
+      "artifact": "instantiation/spec-tools.md"
+    },
+    {
+      "criterion": "AC8",
+      "check": "e3: the mutations; each test of the falsification fails under the mutation of the code it names.",
+      "status": "passed",
+      "artifact": "verification/tests/test_spec_mapper.py"
+    },
+    {
+      "criterion": "AC9",
+      "check": "git diff <base> HEAD --stat shows changes only to the declared scope; nothing under core/, KERNEL.md, templates/, the preflight, run_review.py or the export tool; the dry run of e2 passes with the manifest unchanged (the new files are published as they are).",
+      "status": "passed",
+      "artifact": "git diff output."
+    },
+    {
+      "criterion": "AC10",
+      "check": "the contract's declared_scope names the report and dispositions paths; the preflight scope check passes.",
+      "status": "passed",
+      "artifact": "verification/spec-mapper-task-contract.json"
+    }
+  ],
+  "e5": "Tested: the schema, the four operations, the four mappings on their fixtures, the draft form, the refusals and the mutations of e3. Shapes that still pass: an output path that is a name of another kind that this check does not know (the containment check compares plain paths on the drive and refuses a ':' after the drive on Windows; other aliases of a place inside the input folder, such as a mount or a subst drive on another file system layer, are covered only as far as the real path shows them); a link to a file is tested only through a stub of the file-system call because the account cannot create one; a file that changes between the check and the read, or an output path that becomes a link after the check (a race), is not defended; the number of files a pattern matches is not capped, so a folder with very many matching files is slow but each file is bounded; copied text keeps characters that can reorder text on screen (bidirectional controls) and any character above U+009F, only C0 and C1 controls are replaced; a file or folder name outside letters, digits, dot, underscore, space and hyphen is refused, so a non-ASCII name cannot be drafted; the expected drafts were made by a second implementation written by the same author, so a misreading of the template shared by both is not caught; the kiro-synthetic mapping and its folder are written from third-party descriptions; a mapping that fits no customer format; the effort a draft saves is not measured (stage 2).",
+  "e6": "Invariants touched: none of the repository's gates; templates/task-contract.md is read for its part names and is not changed. Files edited: instantiation/spec-tools.md (one section added, the introduction's sentence that said nothing in AIDF reads a tool's files and section 7's sentence that said no tool is offered, both now pointing to section 8), verification/tests/test_spec_tools_guide.py (its section list and the pin of section 7's sentence), CHANGELOG.md, and this change's own contract and JSON (the declared scope gained verification/tests/test_spec_tools_guide.py and a clause in the Markdown; disclosed in the dispositions). All other files are new. The export tool and its manifest are unchanged.",
+  "residual_risk": "Limits, each a plain fact. The tool is a drafting aid for six parts a planning tool can supply; a person writes the rest and approves the contract. One reader will judge the effort saved (stage 2) and no customer format has been tried (stage 3). The draft copies text verbatim, so whatever a planning file says, including a false statement, is quoted under its source file. The sources of the Kiro example are third-party descriptions. The published copy contains the fixtures, which carry no scan pattern."
+}

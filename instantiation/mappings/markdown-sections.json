@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "markdown-sections",
+  "detect": ["plan.md"],
+  "id_from": "plan.md",
+  "rules": [
+    {"source": "plan.md", "operation": "section", "heading": "Problem", "target": "opening_problem"},
+    {"source": "plan.md", "operation": "section", "heading": "Outcome", "target": "intended_outcome"},
+    {"source": "plan.md", "operation": "section", "heading": "Acceptance criteria", "target": "acceptance_criteria"},
+    {"source": "plan.md", "operation": "section", "heading": "Scope", "target": "declared_scope"},
+    {"source": "plan.md", "operation": "section", "heading": "Approach", "target": "approach"},
+    {"source": "plan.md", "operation": "section", "heading": "Dependencies", "target": "dependency_changes"}
+  ]
+}

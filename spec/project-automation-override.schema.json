@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:aidf:schema:project-automation-override:1",
+  "title": "AIDF Tighten-Only Task Automation Override",
+  "type": "object",
+  "additionalProperties": false,
+  "minProperties": 1,
+  "properties": {
+    "max_autonomous_class": {"enum": ["T0", "T1", "T2"]},
+    "remediation_scope": {
+      "enum": ["none", "mechanical_only", "declared_scope", "approved_task_contract"]
+    },
+    "max_ci_retries": {"type": "integer", "minimum": 0, "maximum": 3},
+    "checkpoint_actions": {"$ref": "#/$defs/action_set"},
+    "notification_actions": {"$ref": "#/$defs/action_set"},
+    "auto_merge_max_class": {"enum": ["none", "T0", "T1", "T2"]}
+  },
+  "$defs": {
+    "action_set": {
+      "type": "array",
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "branch_create",
+          "commit",
+          "push",
+          "merge_request_create",
+          "ci_retry",
+          "review_invoke",
+          "remediation_apply",
+          "merge"
+        ]
+      }
+    }
+  }
+}

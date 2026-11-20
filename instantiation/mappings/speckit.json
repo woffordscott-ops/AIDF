@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "speckit",
+  "detect": ["specs/*/spec.md"],
+  "id_from": "specs/*/spec.md",
+  "rules": [
+    {"source": "specs/*/spec.md", "operation": "blocks", "prefix": "User Story", "target": "intended_outcome"},
+    {"source": "specs/*/spec.md", "operation": "section", "heading": "Requirements *(mandatory)*", "target": "acceptance_criteria"},
+    {"source": "specs/*/spec.md", "operation": "section", "heading": "Success Criteria *(mandatory)*", "target": "acceptance_criteria"},
+    {"source": "specs/*/tasks.md", "operation": "checklist", "target": "declared_scope"},
+    {"source": "specs/*/plan.md", "operation": "section", "heading": "Summary", "target": "approach"},
+    {"source": "specs/*/plan.md", "operation": "section", "heading": "Technical Context", "target": "dependency_changes"}
+  ]
+}

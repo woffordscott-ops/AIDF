@@ -1,0 +1,15 @@
+--- a/app/billing/__init__.py
++++ b/app/billing/__init__.py
+@@ -126,3 +126,12 @@
+         "total_cents": inv["total_cents"],
+         "lines": [{"description": r["description"], "amount_cents": r["amount_cents"]} for r in lines],
+     }
++
++
++def summary(db, principal):
++    permissions.require(principal, "billing.read")
++    row = db.execute(
++        "SELECT COUNT(*) AS n FROM ledger WHERE tenant_id = ?",
++        (principal.tenant_id,),
++    ).fetchone()
++    return {"balance_cents": _balance(db, principal.tenant_id), "entries": row["n"]}

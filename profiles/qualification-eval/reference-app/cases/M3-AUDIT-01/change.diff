@@ -1,0 +1,67 @@
+--- a/app/tickets/__init__.py
++++ b/app/tickets/__init__.py
+@@ -46,16 +46,28 @@
+     return _row(row)
+ 
+ 
+-def assign_ticket(db, principal, ticket_id, assignee_id):
++def assign_ticket(db, principal, ticket_id, assignee_id=None, assignee_email=None):
+     permissions.require(principal, "ticket.assign")  # fast fail before taking the lock
+     ticket_id = validate.db_id(ticket_id, "ticket_id")
+-    assignee_id = validate.db_id(assignee_id, "assignee_id")
++    if assignee_email is None:
++        assignee_id = validate.db_id(assignee_id, "assignee_id")
++    else:
++        if assignee_id is not None or not isinstance(assignee_email, str):
++            raise Invalid("give either assignee_id or assignee_email")
++        validate.text(assignee_email, "assignee_email")
+     with transaction(db):
+         # Everything the decision depends on is read here, under the write lock, so a concurrent
+         # removal of the assignee (or of the caller) cannot slip in between check and write.
+         tenants.require_live(db, principal, "ticket.assign")
+         get_ticket(db, principal, ticket_id)  # tenant-scoped existence check
+-        if not tenants.is_active_member(db, principal.tenant_id, assignee_id):
++        if assignee_email is not None:
++            user = db.execute("SELECT id FROM users WHERE email = ?", (assignee_email,)).fetchone()
++            if user is None:
++                raise Invalid("assignee must be an active member of this tenant")
++            assignee_id = user["id"]
++            if not tenants.is_active_member(db, principal.tenant_id, principal.user_id):
++                raise Invalid("assignee must be an active member of this tenant")
++        elif not tenants.is_active_member(db, principal.tenant_id, assignee_id):
+             raise Invalid("assignee must be an active member of this tenant")
+         db.execute(
+             "UPDATE tickets SET assignee_id = ? WHERE id = ? AND tenant_id = ?",
+--- a/app/web.py
++++ b/app/web.py
+@@ -39,7 +39,7 @@
+ 
+ @route("POST", r"/tickets/([0-9]{1,18})/assign")
+ def _assign(ctx, p, body, tid):
+-    return 200, tickets.assign_ticket(ctx.db, p, int(tid), body.get("assignee_id"))
++    return 200, tickets.assign_ticket(ctx.db, p, int(tid), body.get("assignee_id"), body.get("assignee_email"))
+ 
+ 
+ @route("POST", r"/members")
+--- a/tests/test_tickets.py
++++ b/tests/test_tickets.py
+@@ -57,6 +57,19 @@
+         t = tickets.create_ticket(self.db, self.a("member"), "x", idempotency_key=nk())
+         with self.assertRaises(Invalid):
+             tickets.assign_ticket(self.db, self.a("member"), t["id"], 424242)
++
++    def test_assign_by_email_to_a_same_tenant_member(self):
++        t = tickets.create_ticket(self.db, self.a("member"), "x", idempotency_key=nk())
++        out = tickets.assign_ticket(self.db, self.a("member"), t["id"], assignee_email="a_admin@example.test")
++        self.assertEqual(out["assignee_id"], self.users["a_admin"])
++
++    def test_assign_by_email_needs_a_known_email_and_exactly_one_assignee_field(self):
++        t = tickets.create_ticket(self.db, self.a("member"), "x", idempotency_key=nk())
++        for kwargs in ({"assignee_email": "nobody@example.test"}, {"assignee_email": 7},
++                       {"assignee_id": self.users["a_admin"], "assignee_email": "a_admin@example.test"}, {}):
++            with self.assertRaises(Invalid, msg=repr(kwargs)):
++                tickets.assign_ticket(self.db, self.a("member"), t["id"], **kwargs)
++        self.assertIsNone(tickets.get_ticket(self.db, self.a("owner"), t["id"])["assignee_id"])
+ 
+ 
+ class RemovalUnassignsTests(World):

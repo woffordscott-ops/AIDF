@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "openspec",
+  "detect": ["openspec/changes/*/proposal.md"],
+  "id_from": "openspec/changes/*/proposal.md",
+  "rules": [
+    {"source": "openspec/changes/*/proposal.md", "operation": "section", "heading": "Why", "target": "opening_problem"},
+    {"source": "openspec/changes/*/proposal.md", "operation": "section", "heading": "Capabilities", "target": "opening_change"},
+    {"source": "openspec/changes/*/design.md", "operation": "section", "heading": "Decisions", "target": "opening_technical"},
+    {"source": "openspec/changes/*/proposal.md", "operation": "section", "heading": "What Changes", "target": "intended_outcome"},
+    {"source": "openspec/changes/*/specs/*/spec.md", "operation": "blocks", "prefix": "Requirement:", "target": "acceptance_criteria"},
+    {"source": "openspec/changes/*/tasks.md", "operation": "checklist", "target": "declared_scope"},
+    {"source": "openspec/changes/*/design.md", "operation": "file", "target": "approach"},
+    {"source": "openspec/changes/*/proposal.md", "operation": "section", "heading": "Impact", "target": "dependency_changes"}
+  ]
+}
