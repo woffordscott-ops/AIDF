@@ -33,7 +33,7 @@ python3 verification/aidf_check.py all \
 python3 -m unittest discover -s verification/tests -v
 
 python3 verification/aidf_check.py automation-policy \
-  --automation-policy verification/fixtures/positive/automation-policy-expanded-streamlined.json \
+  --automation-policy verification/fixtures/positive/automation-policy-custom.json \
   --expected-project-id your-namespace/your-project \
   --expected-policy-sha256 <protected-canonical-policy-sha256>
 ```

@@ -55,7 +55,7 @@ The change: add `limit` and `offset` to `GET /items` of a small invented invento
 | Intended outcome | the tool's why / what | one sentence a reviewer can test against |
 | Acceptance criteria | the tool's scenarios (`specs/items-listing/spec.md`; the `spec.md` acceptance scenarios) | one criterion per check, each testable on its own |
 | Approach | OpenSpec `design.md`; Spec Kit `plan.md` | the alternatives you reject, if the tool left them out |
-| Declared scope | OpenSpec `proposal.md` Impact (`inventory/api.py`, `inventory/store.py`, `tests/test_api.py`); Spec Kit `plan.md` and `tasks.md` | the tool's own folder, if you commit it |
+| Declared scope | OpenSpec `proposal.md` Impact (the files the change touches); Spec Kit `plan.md` and `tasks.md` | the tool's own folder, if you commit it |
 | Class, trip-wires, evidence strategy, recovery, review budget, status | nothing | all of it: here T2, because a caller's result changes; recovery is `git revert` |
 
 **Steps 4 to 6.** A human approves the contract. Only then does the agent run `/opsx:apply` (it works through `tasks.md`) or `/speckit-implement`. You then write the evidence pack and have the change reviewed. The tool's `tasks.md` is a checklist for the build, not evidence that anything passed.

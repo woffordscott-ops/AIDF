@@ -7,7 +7,7 @@ last_verified: 2026-10-20
 
 # Layer 2 — Tool/Model Qualification
 
-**Published copy:** the example profiles described below (`qualified/`, `qualification-candidates/`, `unqualified/`) and the earlier suites `qualification-eval/suite-v1.json` and `suite-v1.1.json` belong to the private project the framework was first used on. A published copy of this repository does not contain them, so the paragraphs below that mention those files describe the original repository. The protocol, the validators and the public reference suite (`qualification-eval/suite-v2.json`) are in the copy.
+**Published copy:** the example profiles described below (`qualified/`, `qualification-candidates/`, `unqualified/`) and the earlier suites (the pilot's suite v1 and suite v1.1) belong to the private project the framework was first used on. A published copy of this repository does not contain them, so the paragraphs below that mention those files describe the original repository. The protocol, the validators and the public reference suite (`qualification-eval/suite-v2.json`) are in the copy.
 
 **Status: the protocol, suites and validators are active; the only qualified
 profiles have expired.** `codex-cli 0.151.0-alpha.7.2` / `gpt-5.6-sol` was
@@ -47,7 +47,7 @@ integration at framework protected main `c6fa9bdd06680cefcb36e2cd0280d9ee9f4dcd1
   ground truth; M2 by the Architect's frozen rubric; M3 by ground truth and rubric. The answer key is public, so a result says nothing about a
   candidate that had access to it. `qualification-eval/REFERENCE-SUITE.md` has the full procedure, what the
   suite does not cover and its versioning policy.
-- `qualification-eval/suite-v1.json` fixes the private-pilot-derived
+- The pilot's suite v1 (not in a published copy) fixes the private-pilot-derived
   population and known-good dispositions for M0–M3.
 - `environments/` binds observed execution environments.
 - `unqualified/` records named combinations that could not execute because an
@@ -97,7 +97,7 @@ substitute for evidence.
 T2) implements automatic, cost-aware routing among qualified candidates.
 `profiles/specialty/*.json` records a per-domain (`security_review`,
 `correctness_review`, `ci_infrastructure`, `implementation`) empirical
-qualification, linked to (never merged into) a `profiles/qualified/*.json`
+qualification, linked to (never merged into) a `qualified/*.json`
 record by `profile_id` — a separate record rather than an added field,
 because `profile_payload_sha256` is computed over the entire profile record
 and every protected `review_bindings.*.profile_payload_sha256` cross-check
@@ -190,7 +190,7 @@ A representative mapping was constructed once, locally, to exercise and
 prove the `specialty`/`route` mechanism end to end (2026-10-04) — it was
 never committed, since `profiles/authorization/**` mechanically forces T3
 (`verification/policy.json`'s path-based tripwire, the same rule that
-forces T3 for `.gitlab-ci.yml`), correctly: a real trust mapping is
+forces T3 for the CI configuration file), correctly: a real trust mapping is
 genuinely security-relevant and earns its own T3 review, not a technicality
 to route around for a demonstration. The Change Owner's decision, 2026-10-05:
 build the real mapping fresh, with its own T3 Task Contract and review, at

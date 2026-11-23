@@ -7,7 +7,7 @@ last_verified: 2026-10-20
 
 # Reference Qualification Suite (suite-v2)
 
-`suite-v2.json` is a qualification suite whose case material needs nothing outside this repository (the qualification itself still needs the inputs listed under "Where the protocol text and the validators leave gaps"): its cases are authored fixtures in `profiles/qualification-eval/reference-app/`, a small multi-tenant ticketing and billing service (standard-library Python). It is additive. `suite-v1.json` and `suite-v1.1.json` are bound to a private pilot and are unchanged.
+`suite-v2.json` is a qualification suite whose case material needs nothing outside this repository (the qualification itself still needs the inputs listed under "Where the protocol text and the validators leave gaps"): its cases are authored fixtures in `profiles/qualification-eval/reference-app/`, a small multi-tenant ticketing and billing service (standard-library Python). It is additive. The private pilot's earlier suites (v1 and v1.1) are bound to that pilot and are unchanged.
 
 | Field | Value |
 |---|---|
@@ -43,10 +43,10 @@ The ground truth of every case and, where a case has them, its rubric, hidden te
 
 ## Where the protocol text and the validators leave gaps
 
-A dry run of these instructions (`verification/reference-suite-stage2-suite-file-dry-run.md`) found the following. None changes a validator or protocol v1 or v1.1, which this change does not edit; protocol v1.2 is the one protocol file that it adds.
+A dry run of these instructions (the dry-run record, kept in the private repository) found the following. None changes a validator or protocol v1 or v1.1, which this change does not edit; protocol v1.2 is the one protocol file that it adds.
 
-- The text of protocol v1 and v1.1 names `suite-v1.json` or `suite-v1.1.json` as the fixed population and describes a private pilot. Protocol v1.2, which `suite-v2.json` names as its `protocol_path`, says that for such a suite the fixed population is the suite file the run and profile name by id, version and digest, and that the jurisdiction is the repository the suite names. v1.2 also requires a profile against this suite to list in its `limitations` the declared M0, M1 and M3 differences (described above) and the public answer key.
-- `qualification_check.py` validates suites, availability records, environment bindings and profiles. It has no standalone run-record validator; the shape of a run record is shown only by the private-pilot run manifests under `profiles/qualification-runs/`.
+- The text of protocol v1 and v1.1 names the pilot's suite v1 or suite v1.1 as the fixed population and describes a private pilot. Protocol v1.2, which `suite-v2.json` names as its `protocol_path`, says that for such a suite the fixed population is the suite file the run and profile name by id, version and digest, and that the jurisdiction is the repository the suite names. v1.2 also requires a profile against this suite to list in its `limitations` the declared M0, M1 and M3 differences (described above) and the public answer key.
+- `qualification_check.py` validates suites, availability records, environment bindings and profiles. It has no standalone run-record validator; the shape of a run record is shown only by the private-pilot run manifests in the folder of qualification runs of the private repository.
 - The profile validator accepts only a profile whose `result` is `qualified` and that matches an externally protected digest. It cannot check the inactive, review-pending candidate that protocol v1.1 describes.
 - The profile validator checks only that a profile's `limitations` is a valid list. It does not check that the list contains what protocol v1.2 requires (the declared M0, M1 and M3 differences and the public answer key), so a profile can pass the validator and still not follow v1.2; the party issuing a profile and its reviewers must check that.
 - An exact tool version or model identifier that is unavailable makes the unit unqualified, and the protocol then calls for an availability record and no run or profile.

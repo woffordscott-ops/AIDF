@@ -30,7 +30,7 @@ observed identity cannot support a profile.
 
 ## Fixed population and execution
 
-`profiles/qualification-eval/suite-v1.json` is the fixed population. Its
+The private pilot's first suite file (suite version 1) is the fixed population. Its
 SHA-256 is calculated over strict canonical JSON (UTF-8, sorted keys, compact
 separators, Unicode preserved) and supplied independently to the validator.
 This retains semantic identity across Git line-ending conversion. Cases are

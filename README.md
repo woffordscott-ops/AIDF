@@ -67,7 +67,7 @@ See `CONTRIBUTING.md` (external contributions are not accepted yet) and `SECURIT
 
 ## Evidence archives
 
-The `verification/` and `profiles/qualification-runs/` folders hold the evidence behind this framework's own build and its example qualification, recorded as it happened. That evidence still carries the original private pilot's identifiers (the maintainer's workstation username, an internal hostname and the pilot project's path). They were left in place on purpose: the archives are bound by SHA-256 digests, and redacting them would break the proofs. You do not need these folders to adopt AIDF, and a distribution can leave them out.
+The `verification/` folder and the folder of qualification runs under `profiles/` hold the evidence behind this framework's own build and its example qualification, recorded as it happened. That evidence still carries the original private pilot's identifiers (the maintainer's workstation username, an internal hostname and the pilot project's path). They were left in place on purpose: the archives are bound by SHA-256 digests, and redacting them would break the proofs. You do not need these folders to adopt AIDF, and a distribution can leave them out.
 
 ## What is intentionally not implemented yet
 
