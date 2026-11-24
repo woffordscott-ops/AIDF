@@ -2,7 +2,7 @@
 owner: framework-maintainer
 load_when: onboarding to the framework, or orienting a new contributor/agent
 max_length: 2 pages
-last_verified: 2026-10-20
+last_verified: 2026-11-23
 ---
 
 # AI-Assisted Development Framework (AIDF)
@@ -15,14 +15,26 @@ This is orientation, not a policy document. Policy lives in `KERNEL.md` and `cor
 
 ## Getting started
 
-Clone this repository and run `python3 -m unittest discover -s verification/tests` — it should finish with `OK` (some tests are skipped on some platforms). That's the entire verification suite; there's nothing to install beyond Python 3, and no server to start.
+Three actions. You need a terminal, Git and Python 3.12 or newer, and your project as a folder on your computer (a Git repository with at least one commit if it already has code).
 
-Before anything else: name a **Change Owner** and an **Architect** for your project (`core/02-authority.md` §1). One person can hold both — solo operation is explicitly supported — but every later gate assumes these roles exist and are held by *someone*. Then:
+**1. Check your tools and clone AIDF.** In a terminal, check Git (`git --version`) and Python (macOS or Linux: `python3 --version`; Windows PowerShell: `python --version`); if either is missing or Python is older than 3.12, install it from `https://git-scm.com/downloads` or `https://www.python.org/downloads/` and open a new terminal. Then go to the folder that *contains* your project, not into the project, and clone AIDF next to it:
 
-1. **Read `KERNEL.md`** (≤2 pages) — jurisdiction and the control-selection ladder; `core/` elaborates on it one topic per file.
-2. **Produce your project context pack** (Layer 3) — `instantiation/bootstrap-new.md` if you're starting before code exists, or `instantiation/onboard-existing.md` if you already have a codebase. Output: an architecture overview, invariants register, contracts, and security model, checked structurally by `instantiation/check_context_pack.py`.
-3. **Qualify your own tool/model** (Layer 2) — `profiles/qualification-protocol-v1.1.md`. Output: a profile scoped to your exact repository, revision, tool, model, and environment. This repository's own example profile doesn't transfer to your project. To run a qualification without a private project, use the public reference suite (`profiles/qualification-eval/suite-v2.json`, digest `91c8d1eefb846aa44d3af8dec9a34ccbfe72979cbd37ae236af661ffd63710e6`), which also needs `profiles/qualification-protocol-v1.2.md` (an additive amendment to v1.1 for suites other than the private pilot's). It pins revision `6d647332048862bfa464d11374f53ea6d9cdcfbd` of the project's private history, which a published copy of this repository does not contain: in a published copy, read the case material and the suite file from the commit you checked out and record that commit in your profile (`profiles/README.md` says why the pin is not changed here). Give a fresh instance of your tool and model only each case's prompt and starting workspace, never its ground truth, rubric, hidden tests or reference solution. M0 is graded byte-exactly against an expected diff for the transform case and by an evaluator against an expected disposition and ground truth for the other three; M1 by hidden tests plus plausible-wrong implementations for the three implementation cases and by expected disposition against ground truth for the five others; M2 by the Architect's frozen rubric; M3 by ground truth and rubric. It is a partial suite (16 of the 21 cases the parent contract planned) and its answer key is public, so a result says nothing about a candidate that had access to it; read `profiles/qualification-eval/REFERENCE-SUITE.md` first.
-4. **Run day to day under `core/01-lifecycle.md`** — every unit of work from here on gets classified T0–T3 and gated accordingly.
+```
+git clone https://github.com/woffordscott-ops/AIDF.git aidf
+```
+
+No account is needed. Optional: to check your copy, run `python3 -m unittest discover -s verification/tests` inside `aidf` (Windows: `python`); it takes several minutes and it should finish with `OK` (some tests are skipped on some platforms).
+
+**2. Open your coding agent in your project folder.** Any tool that can read and write files and run commands will do (for example Claude Code, Codex or Cursor). Open it in your project folder, so that it can see both your project and the `aidf` folder next to it; if your tool can only see the folder it was opened in, tell it the path of `aidf` or grant it access to that folder.
+
+**3. Paste the prompt.** Copy the prompt from [`instantiation/start-here.md`](instantiation/start-here.md) into the agent. It reads the setup instructions, asks you short questions one at a time (who the Change Owner and Architect are, whether the project is new or existing, what you are building, which tools and models you use, how risky it is), shows you a summary to confirm, then writes your roles file, your project context pack and your mode declarations, checks the pack, and drafts your first Task Contract for your approval. It proposes and you decide: it will not name your roles, approve anything or change your code. If your project is small (one person, one tool or script), it offers a lighter start with fewer files to write. The same steps written for a person are in [`instantiation/set-up-aidf.md`](instantiation/set-up-aidf.md), if you prefer to do them by hand.
+
+You must name a **Change Owner** and an **Architect** for your project (`core/02-authority.md` §1). One person can hold both; solo operation is explicitly supported, but every later gate assumes these roles exist and are held by *someone*. The agent will ask you for them.
+
+After your first change:
+
+1. **Qualify your own tool/model** (Layer 2) — `profiles/qualification-protocol-v1.1.md`. Output: a profile scoped to your exact repository, revision, tool, model, and environment. This repository's own example profile doesn't transfer to your project. To run a qualification without a private project, use the public reference suite (`profiles/qualification-eval/suite-v2.json`, digest `91c8d1eefb846aa44d3af8dec9a34ccbfe72979cbd37ae236af661ffd63710e6`), which also needs `profiles/qualification-protocol-v1.2.md` (an additive amendment to v1.1 for suites other than the private pilot's). It pins revision `6d647332048862bfa464d11374f53ea6d9cdcfbd` of the project's private history, which a published copy of this repository does not contain: in a published copy, read the case material and the suite file from the commit you checked out and record that commit in your profile (`profiles/README.md` says why the pin is not changed here). Give a fresh instance of your tool and model only each case's prompt and starting workspace, never its ground truth, rubric, hidden tests or reference solution. M0 is graded byte-exactly against an expected diff for the transform case and by an evaluator against an expected disposition and ground truth for the other three; M1 by hidden tests plus plausible-wrong implementations for the three implementation cases and by expected disposition against ground truth for the five others; M2 by the Architect's frozen rubric; M3 by ground truth and rubric. It is a partial suite (16 of the 21 cases the parent contract planned) and its answer key is public, so a result says nothing about a candidate that had access to it; read `profiles/qualification-eval/REFERENCE-SUITE.md` first.
+2. **Run day to day under `core/01-lifecycle.md`** — every unit of work from here on gets classified T0–T3 and gated accordingly.
 
 ## The locked three-layer model
 

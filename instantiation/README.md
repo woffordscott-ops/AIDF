@@ -9,7 +9,7 @@ last_verified: 2026-10-06
 
 **Status: finished and in use** — merged, tested, and formally accepted by the Change Owner on 2026-09-28; not an experimental draft. The two entry paths are [existing-project discovery](onboard-existing.md) and [greenfield decision/bootstrap](bootstrap-new.md). Neither path authorizes project execution, a protected-policy change, or profile use.
 
-New to AIDF: see [how to set up AIDF in a project](set-up-aidf.md), the steps in order. A team that already plans its changes with OpenSpec or Spec Kit: see [using OpenSpec or Spec Kit with AIDF](spec-tools.md).
+New to AIDF: paste the prompt in [start here](start-here.md) into your agent and answer its questions, or see [how to set up AIDF in a project](set-up-aidf.md), the same steps in order for a person to do by hand. A team that already plans its changes with OpenSpec or Spec Kit: see [using OpenSpec or Spec Kit with AIDF](spec-tools.md).
 
 Layer 3 produces one target artifact regardless of entry path: the **project context pack** — architecture overview, invariants register, contracts, security model, testing strategy, conventions (locked spec §1.16, §0). There are two entry paths into producing it:
 

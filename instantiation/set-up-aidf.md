@@ -7,7 +7,7 @@ last_verified: 2026-11-06
 
 # How to set up AIDF in a project
 
-This page assumes you know nothing about AIDF and have not started. Do the steps in order, once, before your first governed change. Every command is given for macOS or Linux and for Windows; type or paste it exactly. This page adds no rule of its own: it puts the setup of `README.md` ("Getting started") and the two playbooks in one sequence, and when it and those documents differ, they govern.
+If you would rather have your agent guide you through these steps with questions, use the prompt in [`start-here.md`](start-here.md); this page is the same setup written for a person to do by hand, and is the reference that prompt reads. This page assumes you know nothing about AIDF and have not started. Do the steps in order, once, before your first governed change. Every command is given for macOS or Linux and for Windows; type or paste it exactly. This page adds no rule of its own: it puts the setup of `README.md` ("Getting started") and the two playbooks in one sequence, and when it and those documents differ, they govern.
 
 **What you will have at the end.** A copy of AIDF on your computer; two named people (a Change Owner and an Architect); a folder of project documents (the *context pack*) that a script has checked; a recorded statement of how your agent may work; and a prompt to start your first change.
 
