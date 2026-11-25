@@ -38,6 +38,11 @@ RULES = {
     "yes-cancels-lighter": "A yes to any part of f cancels it.",
     "t3-and-dependency-stay": "is still T3 and a new dependency still needs my approval",
     "lighter-existing-map": "if the project already has code, record its files with the script of Step 4.3 exactly as in the step above, so that context/repository-map.md is not left as shipped",
+    "authorization-no-code-only": "If the project already has code, do not write an authorization",
+    "authorization-no-registry-entry": "with no registry entry (the checker refuses one in a project with no code)",
+    "authorization-expiry": "the expiry 90 days from today",
+    "authorization-unsigned": "the status left Inactive, and the grantor and the date left pending for me to fill by editing those lines",
+    "authorization-t2-until-signed": "my first change is T2 until I have signed it",
     "lighter-keeps-class": "the lighter start does not lower the class of my first change",
     "done-checklist": "Show me this checklist for the first change",
 }
@@ -57,8 +62,9 @@ INTERVIEW = (
 # The phrases above say what each rule is; they cannot see a sentence added next to them that reverses them. So the prompt and the README
 # section are also pinned whole: any edit fails the test until the editor reads the rules again (the Verifier of the first round showed six
 # edits that kept every phrase and changed what an agent does) and updates the digest here. Updated 2026-11-24 for the clarity change: five new
-# rules, the size question and the lighter start in the prompt, one sentence in the README section. Digest of the text with white space collapsed.
-PROMPT_SHA256 = "2bb28564dd83ed7ecb0dea7885ac475c92e58871cb553b431092dfe4c0745b46"
+# rules, the size question and the lighter start in the prompt, one sentence in the README section. Updated 2026-11-24 again for the small-project rule: the lighter start writes an unsigned
+# standing authorization for a project with no code (the clause of core/01-lifecycle.md section 7 that lets it describe its own pattern). Digest of the text with white space collapsed.
+PROMPT_SHA256 = "3ae5bbb756eed5ab507fc48cb000eabb595a1fe80072528d2b963d688cd79a62"
 README_SECTION_SHA256 = "09ba404a082160aff891ce355d16f38ea22a79329777aa8f98bac0717ea58edf"
 
 CLONE = "git clone https://github.com/woffordscott-ops/AIDF.git aidf"
@@ -167,7 +173,7 @@ class StartHerePromptTests(unittest.TestCase):
         )]
         self.assertEqual(positions, sorted(positions))
 
-    def test_the_lighter_start_writes_three_context_files_and_promises_no_lower_class(self):
+    def test_the_lighter_start_writes_three_context_files_and_an_unsigned_authorization_for_a_project_without_code(self):
         flat_prompt = flat(self.prompt)
         for needle in (
             "write drafts of only context/architecture-overview.md, context/testing-strategy.md and context/conventions.md and leave every other context file as shipped",
@@ -176,11 +182,13 @@ class StartHerePromptTests(unittest.TestCase):
         ):
             with self.subTest(needle=needle):
                 self.assertIn(needle, flat_prompt)
-        # The first rehearsal showed the checker refuses a PROVISIONAL pattern entry in a project with no code, so Route 2 cannot serve a new
-        # project: the prompt must not promise T1 through a standing authorization.
-        for word in ("standing authorization", "PROVISIONAL", "Route 2", "pattern-registry.json"):
+        # The checker refuses a PROVISIONAL pattern entry in a project with no code (found by the rehearsal of the clarity change), so the
+        # authorization describes its pattern itself and the prompt writes no registry entry.
+        for word in ("PROVISIONAL", "pattern-registry.json"):
             with self.subTest(absent=word):
                 self.assertNotIn(word, self.prompt)
+        self.assertIn("aidf/templates/standing-authorization.md", self.prompt)
+        self.assertTrue((ROOT / "templates" / "standing-authorization.md").is_file())
 
     def test_no_shell_command_is_given_for_approval(self):
         self.assertIsNone(re.search(r"\bsed\s+-", self.prompt))
@@ -189,7 +197,7 @@ class StartHerePromptTests(unittest.TestCase):
 
     def test_the_checklist_names_each_box(self):
         flat_prompt = flat(self.prompt)
-        for box in ("the Task Contract is approved by me", "the change is built with its tests", "a separate session has reviewed it", "docs/reviews/", "the context pack is read and confirmed by me", "the change is merged"):
+        for box in ("the Task Contract is approved by me", "the change is built with its tests", "a separate session has reviewed it", "docs/reviews/", "the context pack is read and confirmed by me", "the change is merged", "if a standing authorization was written, it is signed by me"):
             with self.subTest(box=box):
                 self.assertIn(box, flat_prompt)
 
@@ -221,6 +229,42 @@ class StartHerePromptTests(unittest.TestCase):
         lowered = self.prompt.lower()
         for word in ("password", "api key", "token", "secret key"):
             self.assertNotIn(word, lowered)
+
+
+class SmallProjectRuleTests(unittest.TestCase):
+    """The core rule that lets a standing authorization describe its own pattern in a project with no code (Task Contract
+    spec/AIDF-SMALL-PROJECT-RULE-TASK-CONTRACT.md). Every other condition of Route 2 stays."""
+
+    def test_route_2_carries_the_clause_and_keeps_its_conditions(self):
+        text = flat(read("core/01-lifecycle.md"))
+        self.assertIn("or, in a project with no code yet, a pattern the authorization itself describes", text)
+        self.assertIn("In a project with no code yet there is no incumbent pattern for a `PROVISIONAL` entry to record, so the authorization describes the pattern itself; every other condition of Route 2 applies unchanged.", text)
+        for kept in (
+            "**Route 2 never becomes Route 1 by use or by age.**",
+            "**No precedent.** Permission to execute this pattern under T1 controls, for a stated scope, until a stated expiry.",
+            "approved by a human under Architect authority and recorded (pattern · scope · expiry · grantor)",
+            "work under it reverts to minimum T2 until ratified",
+            "No precedent, no covering standing authorization, precedent that doesn't fit the context, or a `PROVISIONAL` entry with no covering authorization → **minimum T2.**",
+            "**De-escalation requires the authority of the higher class**",
+        ):
+            with self.subTest(kept=kept):
+                self.assertIn(kept, text)
+
+    def test_the_authority_document_and_the_template_say_the_same(self):
+        authority = flat(read("core/02-authority.md"))
+        self.assertIn("In a project with no code yet, where there is no incumbent pattern to enter in the registry, the authorization describes the pattern in its own text; the human grantor, the scope and the mandatory expiry are unchanged.", authority)
+        template = read("templates/standing-authorization.md")
+        self.assertIn("in a project with no code yet, describe the pattern here instead", template)
+        for field in ("**Scope**", "**Expiry** (date — mandatory)", "**Grantor** (human, Architect authority)"):
+            with self.subTest(field=field):
+                self.assertIn(field, template)
+
+    def test_the_trip_wires_and_the_dependency_gate_are_not_touched_by_the_rule(self):
+        kernel = flat(read("KERNEL.md"))
+        self.assertIn("any one forces T3, non-negotiable, cannot be waived by an agent", kernel)
+        self.assertIn("any new third-party dependency or license change requires human approval regardless of class", kernel)
+        prompt = flat(prompt_of(read("instantiation/start-here.md")))
+        self.assertIn("is still T3 and a new dependency still needs my approval", prompt)
 
 
 class ManualPathKeptTests(unittest.TestCase):

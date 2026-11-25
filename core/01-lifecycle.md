@@ -128,11 +128,11 @@ No precedent, no covering standing authorization, precedent that doesn't fit the
 | Route | What it is | Confers |
 |---|---|---|
 | **Route 1 — Ratified precedent** | An applicable `RATIFIED` registry entry, ADR, or conventions entry | Precedent. Durable, unexpiring, citable by future work. |
-| **Route 2 — Standing authorization** | An explicit, scoped, time-boxed authorization (`templates/standing-authorization.md`) covering a `PROVISIONAL` pattern for T1 use | **No precedent.** Permission to execute this pattern under T1 controls, for a stated scope, until a stated expiry. |
+| **Route 2 — Standing authorization** | An explicit, scoped, time-boxed authorization (`templates/standing-authorization.md`) covering a `PROVISIONAL` pattern for T1 use or, in a project with no code yet, a pattern the authorization itself describes | **No precedent.** Permission to execute this pattern under T1 controls, for a stated scope, until a stated expiry. |
 
 **Route 2 never becomes Route 1 by use or by age.** On expiry, or on rejection of the underlying pattern, work under it reverts to minimum T2 until ratified. Ratification is a one-line registry entry (`templates/pattern-entry.md`), not an ADR — an ADR is required only when the pattern is novel and durable, something others will follow.
 
-**Bootstrap:** a new project starts with an empty registry. Seeding happens before classification depends on it, and every seeded entry is `PROVISIONAL`. Where pilot practicality requires a provisional pattern to support T1 work, the instrument is Route 2, approved by a human under Architect authority and recorded (pattern · scope · expiry · grantor).
+**Bootstrap:** a new project starts with an empty registry. Seeding happens before classification depends on it, and every seeded entry is `PROVISIONAL`. Where pilot practicality requires a provisional pattern to support T1 work, the instrument is Route 2, approved by a human under Architect authority and recorded (pattern · scope · expiry · grantor). In a project with no code yet there is no incumbent pattern for a `PROVISIONAL` entry to record, so the authorization describes the pattern itself; every other condition of Route 2 applies unchanged.
 
 ## 8. Classification authority
 

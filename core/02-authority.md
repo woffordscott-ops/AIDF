@@ -104,7 +104,7 @@ No redundant signatures: where one human holds Architect and Change Owner, the a
 
 A human may pre-approve a *pattern* — scoped and time-boxed ("additive migrations to these tables, following this template, are level N for the next quarter") — using `templates/standing-authorization.md`. This is how gate count stays low without lowering the bar.
 
-**A standing authorization is not a ratified pattern and must not be recorded as one.** It is a separate, expiring record (`pattern · scope · expiry · grantor`) that permits specific work without conferring Precedent. Conflating the two re-launders provisional patterns into approval.
+**A standing authorization is not a ratified pattern and must not be recorded as one.** It is a separate, expiring record (`pattern · scope · expiry · grantor`) that permits specific work without conferring Precedent. Conflating the two re-launders provisional patterns into approval. In a project with no code yet, where there is no incumbent pattern to enter in the registry, the authorization describes the pattern in its own text; the human grantor, the scope and the mandatory expiry are unchanged.
 
 ### Project automation policy
 

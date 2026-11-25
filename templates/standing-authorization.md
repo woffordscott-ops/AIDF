@@ -9,7 +9,7 @@ last_verified: 2026-08-19
 
 **Not a ratified pattern.** A separate, expiring record that permits specific work under T1 controls without conferring Precedent. Recording it here does not promote the underlying Pattern Registry entry — do not cross-file this as a `pattern-entry.md` row.
 
-- **Pattern authorized (references `PROVISIONAL` registry entry):**
+- **Pattern authorized (references `PROVISIONAL` registry entry; in a project with no code yet, describe the pattern here instead):**
 - **Scope** (exactly what work this covers):
 - **Expiry** (date — mandatory):
 - **Grantor** (human, Architect authority):
