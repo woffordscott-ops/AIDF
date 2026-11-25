@@ -9,7 +9,7 @@ last_verified: 2026-11-24
 
 You have cloned AIDF into a folder named `aidf` next to your project (see "Getting started" in `README.md`). This page gives you one prompt. You open your coding agent in your project folder, paste the prompt, and answer its questions. When it finishes you have: the two roles recorded, a project context pack that the AIDF checker has passed, a record of which agent may work in which mode, and a first Task Contract waiting for your approval.
 
-**What the agent will do.** Read the AIDF setup page, ask you questions one at a time, show you a summary and wait for your "yes", then write the files and run the checker.
+**What the agent will do.** Read the AIDF setup page, ask you questions one at a time, show you a summary and wait for your "yes", then write the files and run the checker. It does not run AIDF's own self-test unless you ask, it tells you before your first review what could stop the review tool, and it tells you if a planning tool's commands need a new session.
 
 **What the agent will not do.** It will not choose who your Change Owner or Architect is, mark anything approved, write down which agents may work in which mode before you confirm each line, change your code, install anything outside your project folder without asking, or commit without asking. The framework keeps those decisions with a human; the agent proposes and you decide.
 
@@ -44,6 +44,9 @@ Rules. They apply to every step and override anything that seems to say otherwis
 13. The first time you ask me for a review, say that review reports and dispositions go in docs/reviews/ in this project unless I choose another place.
 14. Put every decision you ask of me in one plain sentence, say what each choice means for me, and put the framework's own term in brackets after it.
 15. Offer the lighter start of question g only when I say the project is small and my answer to every part of question f was no. Never apply it unasked. A yes to any part of f cancels it. A change that hits a trip-wire of KERNEL.md is still T3 and a new dependency still needs my approval.
+16. Do not run the AIDF self-test (the checks of set-up-aidf.md Step 1) unless I ask you to; if I ask, run it once and tell me its result once, when it has finished.
+17. If you install OpenSpec or Spec Kit in this project, tell me that its slash commands load only in a new session, and that until then you run the same steps through its command line.
+18. The first time you ask me for a review, also tell me, in plain words, that CLAUDE.md and the planning tool's folders (such as .claude or .cursor) make verification/run_review.py refuse to start a review, and that I choose between reviewing a copy of the project without them and passing --allow-steering-files knowingly (the log records that). Recommend neither, and never run the review tool yourself.
 
 Interview. Ask these, in this order, one at a time:
 a. Who is the Change Owner and who is the Architect? (One person can be both.)

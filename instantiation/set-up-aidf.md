@@ -29,8 +29,8 @@ If you would rather have your agent guide you through these steps with questions
    ```
 
 3. Go into it: `cd aidf`
-4. Run its checks. macOS or Linux: `python3 -m unittest discover -s verification/tests`. Windows: `python -m unittest discover -s verification/tests`. This takes several minutes and prints a lot.
-5. Read the last lines. The line `OK` (possibly `OK (skipped=...)`) means it ran; the number of tests is not important (the AIDF `README.md` may quote an older number). If you see `FAILED` or `Error`, stop and ask the person who gave you AIDF: do not continue on a copy that fails its own checks.
+4. Optional: run its checks, to confirm your copy; skip this step if you are told not to or do not need it. If you run them, macOS or Linux: `python3 -m unittest discover -s verification/tests`. Windows: `python -m unittest discover -s verification/tests`. This takes several minutes and prints a lot.
+5. If you ran the checks, read the last lines. The line `OK` (possibly `OK (skipped=...)`) means it ran; the number of tests is not important (the AIDF `README.md` may quote an older number). If you see `FAILED` or `Error`, stop and ask the person who gave you AIDF: do not continue on a copy that fails its own checks.
 6. Write down the full path of the `aidf` folder (macOS or Linux: type `pwd`; Windows: type `(Get-Location).Path`). The rest of this page calls it `<AIDF>`.
 
 ## Step 2. Name the two people

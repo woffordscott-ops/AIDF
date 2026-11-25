@@ -45,6 +45,9 @@ RULES = {
     "authorization-t2-until-signed": "my first change is T2 until I have signed it",
     "lighter-keeps-class": "the lighter start does not lower the class of my first change",
     "done-checklist": "Show me this checklist for the first change",
+    "self-test-only-on-request": "Do not run the AIDF self-test (the checks of set-up-aidf.md Step 1) unless I ask you to; if I ask, run it once and tell me its result once, when it has finished.",
+    "restart-note": "tell me that its slash commands load only in a new session, and that until then you run the same steps through its command line",
+    "review-route-choice": "make verification/run_review.py refuse to start a review, and that I choose between reviewing a copy of the project without them and passing --allow-steering-files knowingly (the log records that). Recommend neither, and never run the review tool yourself.",
 }
 
 INTERVIEW = (
@@ -64,7 +67,8 @@ INTERVIEW = (
 # edits that kept every phrase and changed what an agent does) and updates the digest here. Updated 2026-11-24 for the clarity change: five new
 # rules, the size question and the lighter start in the prompt, one sentence in the README section. Updated 2026-11-24 again for the small-project rule: the lighter start writes an unsigned
 # standing authorization for a project with no code (the clause of core/01-lifecycle.md section 7 that lets it describe its own pattern). Digest of the text with white space collapsed.
-PROMPT_SHA256 = "3ae5bbb756eed5ab507fc48cb000eabb595a1fe80072528d2b963d688cd79a62"
+# Updated 2026-11-25 for the friction follow-ups: rules 16 to 18 (the self-test only on request, the restart note for a planning tool, the review-route choice).
+PROMPT_SHA256 = "7b0714c50417a3770fa86816b35a31cb84f1c61973b462ac6294574fff775bd7"
 README_SECTION_SHA256 = "09ba404a082160aff891ce355d16f38ea22a79329777aa8f98bac0717ea58edf"
 
 CLONE = "git clone https://github.com/woffordscott-ops/AIDF.git aidf"
@@ -265,6 +269,27 @@ class SmallProjectRuleTests(unittest.TestCase):
         self.assertIn("any new third-party dependency or license change requires human approval regardless of class", kernel)
         prompt = flat(prompt_of(read("instantiation/start-here.md")))
         self.assertIn("is still T3 and a new dependency still needs my approval", prompt)
+
+
+class FrictionFollowupsTests(unittest.TestCase):
+    """Task Contract spec/AIDF-FRICTION-FOLLOWUPS-TASK-CONTRACT.md: the self-test is optional, a planning tool's commands need a new
+    session, and the user is told before the first review what can stop the review tool."""
+
+    def test_the_prompt_does_not_carry_the_test_command_and_names_the_flag_without_running_it(self):
+        prompt = prompt_of(read("instantiation/start-here.md"))
+        self.assertNotIn("unittest", prompt)
+        self.assertIn("--allow-steering-files", prompt)
+        self.assertNotIn("python verification/run_review.py", prompt)
+
+    def test_set_up_marks_the_self_test_optional_and_keeps_the_stop_on_failure_sentence(self):
+        setup = flat(read("instantiation/set-up-aidf.md"))
+        self.assertIn("4. Optional: run its checks, to confirm your copy; skip this step if you are told not to or do not need it.", setup)
+        self.assertIn("5. If you ran the checks, read the last lines.", setup)
+        self.assertIn("If you see `FAILED` or `Error`, stop and ask the person who gave you AIDF: do not continue on a copy that fails its own checks.", setup)
+
+    def test_the_human_page_says_the_self_test_is_not_run_unasked(self):
+        text = flat(read("instantiation/start-here.md"))
+        self.assertIn("It does not run AIDF's own self-test unless you ask", text)
 
 
 class ManualPathKeptTests(unittest.TestCase):
