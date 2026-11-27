@@ -42,12 +42,27 @@ RULES = {
     "authorization-no-registry-entry": "with no registry entry (the checker refuses one in a project with no code)",
     "authorization-expiry": "the expiry 90 days from today",
     "authorization-unsigned": "the status left Inactive, and the grantor and the date left pending for me to fill by editing those lines",
-    "authorization-t2-until-signed": "my first change is T2 until I have signed it",
+    "authorization-t2-either-way": "my first change is T2 whether or not I sign it",
+    "authorization-later-changes-only": "only if it stays inside the tool's existing commands and file format and changes no contract",
     "lighter-keeps-class": "the lighter start does not lower the class of my first change",
     "done-checklist": "Show me this checklist for the first change",
     "self-test-only-on-request": "Do not run the AIDF self-test (the checks of set-up-aidf.md Step 1) unless I ask you to; if I ask, run it once and tell me its result once, when it has finished.",
     "restart-note": "tell me that its slash commands load only in a new session, and that until then you run the same steps through its command line",
-    "review-route-choice": "make verification/run_review.py refuse to start a review, and that I choose between reviewing a copy of the project without them and passing --allow-steering-files knowingly (the log records that). Recommend neither, and never run the review tool yourself.",
+    "review-route-choice": "make verification/run_review.py refuse to start a review, and that I choose between reviewing a commit of the project without them and passing --allow-steering-files knowingly (the log records that). Recommend neither, and never run the review tool yourself.",
+    "confirmation-recorded-once": "the confirmation is recorded once, in docs/AIDF-ROLES.md",
+    "confirmation-only-place": "that is the only place I confirm the context pack",
+    "read-only-commands": "plus read-only commands that inspect (listing or reading files, git status, git log, git diff)",
+    "approval-one-block": "every line to change and the words to write, all in one block",
+    "no-open-question": "In the first Task Contract leave no open question",
+    "iso-dates": "Write every date as YYYY-MM-DD",
+    "review-records-in-scope": "docs/reviews/, docs/AIDF-ROLES.md and the contract's own file, and it has an Outcome records criterion",
+    "simplest-design": "Propose the simplest design that meets the invariants I stated, and name what it leaves out.",
+    "git-local-identity": "use only a repository-local identity (git config without --global) and never change my machine-wide settings",
+    "local-publishes-nothing": "a local repository publishes nothing",
+    "branch-and-local-merge": 'where the project has no remote, "merged" means merged into the main branch locally after the review has passed at a named commit',
+    "language-version-asked": "which version of the language",
+    "checklist-confirmation": "the context pack is read and confirmed by me in docs/AIDF-ROLES.md",
+    "checklist-merged": "[ ] the change is merged (with no remote: into the main branch locally, after the review passed)",
 }
 
 INTERVIEW = (
@@ -68,7 +83,8 @@ INTERVIEW = (
 # rules, the size question and the lighter start in the prompt, one sentence in the README section. Updated 2026-11-24 again for the small-project rule: the lighter start writes an unsigned
 # standing authorization for a project with no code (the clause of core/01-lifecycle.md section 7 that lets it describe its own pattern). Digest of the text with white space collapsed.
 # Updated 2026-11-25 for the friction follow-ups: rules 16 to 18 (the self-test only on request, the restart note for a planning tool, the review-route choice).
-PROMPT_SHA256 = "7b0714c50417a3770fa86816b35a31cb84f1c61973b462ac6294574fff775bd7"
+# Updated 2026-11-27 for friction-followups-2: the first change is T2 whether or not the standing authorization is signed, question e asks the language version, rule 5 (one confirmation record), rule 8 (read-only commands), rule 12 (one block), rule 18 (a commit, not a copy), rules 19 and 20 (the first contract, Git), the roles confirmation line and the checklist wording.
+PROMPT_SHA256 = "f0b7e89a0e6c99955067ae2b7848e1ab059c7d38100130e4bed1a9cd0e985c24"
 README_SECTION_SHA256 = "09ba404a082160aff891ce355d16f38ea22a79329777aa8f98bac0717ea58edf"
 
 CLONE = "git clone https://github.com/woffordscott-ops/AIDF.git aidf"
@@ -290,6 +306,46 @@ class FrictionFollowupsTests(unittest.TestCase):
     def test_the_human_page_says_the_self_test_is_not_run_unasked(self):
         text = flat(read("instantiation/start-here.md"))
         self.assertIn("It does not run AIDF's own self-test unless you ask", text)
+
+
+class FrictionFollowups2Tests(unittest.TestCase):
+    """Task Contract spec/AIDF-FRICTION-FOLLOWUPS-2-TASK-CONTRACT.md: what the first change's class depends on is stated truthfully, the
+    first contract is approvable in one pass, the context pack has one confirmation record, and Git settings stay local."""
+
+    def setUp(self):
+        self.text = read("instantiation/start-here.md")
+        self.prompt = flat(prompt_of(self.text))
+        self.setup = flat(read("instantiation/set-up-aidf.md"))
+
+    def test_the_over_promise_about_the_first_change_is_gone_from_prompt_and_note(self):
+        page = flat(self.text)
+        for old in ("my first change is T2 until I have signed it", "until you sign it the first change is T2", "lets your first changes in its scope run under the lighter T1 controls"):
+            with self.subTest(old=old):
+                self.assertNotIn(old, page)
+
+    def test_the_note_says_the_first_change_is_t2_either_way(self):
+        note = flat(self.text.split("## The prompt")[0])
+        self.assertIn("does not lower your first change, which is T2 either way", note)
+        self.assertIn("only if that change stays within the tool's existing commands and file format and changes no contract", note)
+
+    def test_the_prompt_names_the_confirmation_lines_and_does_not_ask_for_per_file_edits(self):
+        self.assertIn('a line "Context pack confirmed by (Architect): pending" and a line "Date: pending"', self.prompt)
+        self.assertIn("never ask me to edit it file by file", self.prompt)
+
+    def test_the_prompt_never_has_the_agent_set_global_git_settings(self):
+        self.assertNotIn("git config --global", self.prompt)
+
+    def test_set_up_uses_a_repository_local_identity_and_names_the_confirmation_record(self):
+        self.assertNotIn("git config --global", self.setup)
+        self.assertIn('run these inside the project folder, without `--global`', self.setup)
+        self.assertIn("Context pack confirmed by (Architect): <full name, written by the Architect>", self.setup)
+        self.assertIn("This one line is the confirmation of the whole context pack", self.setup)
+
+    def test_set_up_defines_merged_for_a_project_with_no_remote(self):
+        self.assertIn("if the project has no remote, merged means merged into the main branch locally after the review passed at a named commit", self.setup)
+
+    def test_the_old_wording_of_rule_18_is_gone(self):
+        self.assertNotIn("reviewing a copy of the project", self.prompt)
 
 
 class ManualPathKeptTests(unittest.TestCase):

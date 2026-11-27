@@ -267,7 +267,9 @@ class GuideTests(unittest.TestCase):
         self.assertIn("git add -A", body)
         self.assertIn("If it prints `fatal: not a git repository`, run `git init` in the project folder first.", flat(SETUP))
         self.assertIn("If the commit stops with `Author identity unknown`", flat(SETUP))
-        self.assertIn("`git config --global user.name \"Your Name\"` and `git config --global user.email \"you@example.com\"`", flat(SETUP))
+        # friction-followups-2: the identity is set for this project only, never machine-wide.
+        self.assertIn("`git config user.name \"Your Name\"` and `git config user.email \"you@example.com\"`", flat(SETUP))
+        self.assertNotIn("git config --global", flat(SETUP))
 
     def test_the_three_mode_examples_carry_their_declaration_lines(self) -> None:
         body = text(SETUP)
