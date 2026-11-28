@@ -63,6 +63,15 @@ RULES = {
     "language-version-asked": "which version of the language",
     "checklist-confirmation": "the context pack is read and confirmed by me in docs/AIDF-ROLES.md",
     "checklist-merged": "[ ] the change is merged (with no remote: into the main branch locally, after the review passed)",
+    "t1-five-conditions": "say it is T1 only when all five conditions of core/01-lifecycle.md section 6 hold",
+    "t1-authorization-supplies-pattern": "a standing authorization supplies only the last of them",
+    "t1-established-or-approved": "a T1 contract is established by you and a T2 or T3 contract needs my approval",
+    "t1-never-exempt-unchecked": "never call a later change exempt from approval or review before you have checked all five conditions",
+    "first-contract-cap": "at most six acceptance criteria and five stated assumptions",
+    "no-unasked-durability": "no crash-safety, locking or backup design unless my answer to e or f asks for it",
+    "split-not-drop": "say the change is too large and propose splitting it, never dropping a requirement I stated",
+    "aidf-inside-project": "If the aidf folder is inside this project folder, tell me",
+    "aidf-out-of-git-map-scope": "add it to the project's .gitignore, leave it out of the repository map and of the declared scope of every contract, and never move or delete it",
 }
 
 INTERVIEW = (
@@ -84,7 +93,10 @@ INTERVIEW = (
 # standing authorization for a project with no code (the clause of core/01-lifecycle.md section 7 that lets it describe its own pattern). Digest of the text with white space collapsed.
 # Updated 2026-11-25 for the friction follow-ups: rules 16 to 18 (the self-test only on request, the restart note for a planning tool, the review-route choice).
 # Updated 2026-11-27 for friction-followups-2: the first change is T2 whether or not the standing authorization is signed, question e asks the language version, rule 5 (one confirmation record), rule 8 (read-only commands), rule 12 (one block), rule 18 (a commit, not a copy), rules 19 and 20 (the first contract, Git), the roles confirmation line and the checklist wording.
-PROMPT_SHA256 = "f0b7e89a0e6c99955067ae2b7848e1ab059c7d38100130e4bed1a9cd0e985c24"
+# Updated 2026-11-27 for friction-followups-3: the comma splice in the human note, the note's sentence that the authorization supplies only one of the five T1 conditions, rule 19's cap (six criteria, five assumptions, no unasked crash-safety design, split instead of drop), rule 21 (what a later T1 change needs) and rule 22 (an aidf folder inside the project).
+PROMPT_SHA256 = "2b90cdeda068cc65f1179bc426fe309fd19b026c1691f97ae92b9bd1d1edc093"
+# The human note above the prompt is pinned whole too (the Verifier of friction-followups-3 showed a sentence added beside a pinned one that reversed it and left every test green). Digest of the text before the heading 'The prompt', white space collapsed. Added 2026-11-27 for friction-followups-3.
+NOTE_SHA256 = "f0a955783c6c5a8ee7143d96d6c0a3b056fcaf91174be50d5e5b0d4004cf5a23"
 README_SECTION_SHA256 = "09ba404a082160aff891ce355d16f38ea22a79329777aa8f98bac0717ea58edf"
 
 CLONE = "git clone https://github.com/woffordscott-ops/AIDF.git aidf"
@@ -346,6 +358,48 @@ class FrictionFollowups2Tests(unittest.TestCase):
 
     def test_the_old_wording_of_rule_18_is_gone(self):
         self.assertNotIn("reviewing a copy of the project", self.prompt)
+
+
+class FrictionFollowups3Tests(unittest.TestCase):
+    """Task Contract spec/AIDF-FRICTION-FOLLOWUPS-3-TASK-CONTRACT.md: the note's punctuation, what a later T1 change needs, the size of the
+    first contract, and an aidf folder inside the project."""
+
+    def setUp(self):
+        self.text = read("instantiation/start-here.md")
+        self.prompt = flat(prompt_of(self.text))
+        self.note = flat(self.text.split("## The prompt")[0])
+
+    def test_the_comma_splice_in_the_note_is_fixed(self):
+        self.assertNotIn("editing named lines, It does not lower", self.note)
+        self.assertIn("editing named lines. It does not lower your first change", self.note)
+
+    def test_the_loose_gloss_on_a_later_change_is_absent_and_the_note_names_the_other_conditions(self):
+        page = flat(self.text)
+        for old in ("no prior approval from you needed by class", "review optional"):
+            with self.subTest(old=old):
+                self.assertNotIn(old, page)
+        self.assertIn("The authorization supplies only one of the five conditions of T1 (a pattern authorized for T1 use); the other four must hold on their own, and a change that fails any one of them is not T1 (it is T2 at least, or T3 if a trip-wire of KERNEL.md applies).", self.note)
+
+    def test_the_t1_conditions_are_the_ones_the_core_rule_lists(self):
+        core = flat(read("core/01-lifecycle.md"))
+        for condition in ("one ownership boundary", "within existing contracts", "reversible", "Spec Confidence Clear", "authorised for T1 use"):
+            with self.subTest(condition=condition):
+                self.assertIn(condition, core)
+                self.assertIn(condition.replace("authorised", "authorized"), self.prompt)
+
+    def test_the_human_note_is_pinned_whole(self):
+        digest = hashlib.sha256(self.note.strip().encode("utf-8")).hexdigest()
+        self.assertEqual(digest, NOTE_SHA256, "the human note changed: re-read it against core/01-lifecycle.md sections 6 and 7, then update NOTE_SHA256 and say why in the dispositions")
+
+    def test_a_failed_t1_condition_does_not_make_a_change_exactly_t2(self):
+        self.assertNotIn("fails any one of them is T2.", self.note)
+
+    def test_the_cap_applies_to_the_lighter_start_only_and_keeps_rule_19(self):
+        self.assertIn("In the lighter start keep the first contract to at most six acceptance criteria and five stated assumptions", self.prompt)
+        self.assertIn("leave no open question", self.prompt)
+
+    def test_the_prompt_does_not_write_outside_the_project_for_the_aidf_folder(self):
+        self.assertNotIn("move the aidf folder", self.prompt)
 
 
 class ManualPathKeptTests(unittest.TestCase):
